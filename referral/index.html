@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Referral Engine — Team Elevation</title>
+<style>
+:root{
+  --navy-dk:#10182b; --navy:#1b2a4a; --navy-lt:#243456; --navy-hi:#2d4066;
+  --red:#e5421f; --red-dk:#b8330f; --crimson:#c8102e;
+  --light:#eef1f6; --muted:#9fb0cc; --faint:#6b7d9e;
+  --green:#22c55e; --green-dk:#1a8f4c; --gold:#d9822b; --violet:#a855f7;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--navy-dk);color:var(--light);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+  -webkit-font-smoothing:antialiased;padding:0 0 90px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+header{padding:28px 0 0}
+.kick{font:700 11px/1 var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:10px}
+h1{font-size:clamp(25px,4vw,35px);line-height:1.1;margin:0 0 9px;letter-spacing:-.025em}
+h1 span{color:var(--red)}
+.sub{color:var(--muted);font-size:14.5px;max-width:70ch;margin:0}
+
+.hstats{display:flex;flex-wrap:wrap;gap:9px;margin:20px 0 0}
+.st{background:var(--navy);border:1px solid var(--navy-lt);border-radius:9px;padding:10px 14px;min-width:94px}
+.st b{display:block;font:700 22px/1 var(--mono);letter-spacing:-.02em}
+.st span{font:700 10px/1.4 var(--mono);letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.st.g b{color:var(--green)} .st.r b{color:var(--red)} .st.o b{color:var(--gold)} .st.v b{color:var(--violet)}
+
+.cyc{background:var(--navy);border:1px solid var(--navy-lt);border-left:4px solid var(--red);
+  border-radius:11px;padding:18px 20px;margin:16px 0 0}
+.cyc .top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.cyc .lbl{font:700 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.cyc .n{font:700 14px/1 var(--mono)}
+.bar{height:10px;background:var(--navy-dk);border-radius:6px;display:flex;gap:2px;padding:2px}
+.bar i{flex:1;background:var(--navy-hi);border-radius:2px;transition:.2s}
+.bar i.on{background:var(--red)}
+.cyc .foot{color:var(--muted);font-size:13px;margin:11px 0 0}
+.cyc .foot b{color:var(--light)}
+
+nav{position:sticky;top:0;z-index:20;background:rgba(16,24,43,.95);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--navy-lt);margin-top:24px}
+.tabs{max-width:1120px;margin:0 auto;padding:0 20px;display:flex;gap:2px;overflow-x:auto}
+.tabs button{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);
+  font:700 12px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  padding:16px 14px;cursor:pointer;white-space:nowrap;transition:.15s}
+.tabs button:hover{color:var(--light)}
+.tabs button.on{color:var(--red);border-bottom-color:var(--red)}
+section.view{display:none;padding-top:28px}
+section.view.on{display:block}
+
+h2.sh{font:700 12px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;margin:0 0 6px;color:var(--red)}
+h2.sh.g{color:var(--green)} h2.sh.o{color:var(--gold)} h2.sh.v{color:var(--violet)}
+p.sd{color:var(--muted);font-size:13.5px;margin:0 0 17px;max-width:80ch}
+p.sd b{color:var(--light)}
+.block{margin-bottom:38px}
+
+.card{background:var(--navy);border:1px solid var(--navy-lt);border-radius:11px;padding:17px 19px;margin-bottom:10px}
+.card.lg{border-left:4px solid var(--navy-hi)}
+.card.dep{border-left-color:var(--green)}
+.card.rev{border-left-color:var(--violet)}
+.card.live{border-left-color:var(--red)}
+.card.room{border-left-color:var(--gold)}
+.card.done{opacity:.38}
+.nm{font-weight:700;font-size:18px;letter-spacing:-.015em}
+.nm small{font-weight:500;font-size:12px;color:var(--faint);font-family:var(--mono);margin-left:9px}
+.meta{font:700 10px/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:5px}
+.note{color:#c9d3e3;font-size:13.5px;margin-top:9px}
+.note em{color:var(--light);font-style:normal;font-weight:650}
+.why{color:var(--muted);font-size:13px;margin-top:7px;font-style:italic}
+.say{background:var(--navy-dk);border-radius:8px;padding:13px 15px;margin-top:13px;
+  border-left:3px solid var(--gold);font-size:15px}
+.say small{display:block;font:700 10px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:8px}
+
+.pill{display:inline-block;padding:3px 9px;border-radius:6px;font:700 10px/1.5 var(--mono);
+  letter-spacing:.07em;text-transform:uppercase;margin:0 5px 5px 0;white-space:nowrap}
+.pRef{background:rgba(229,66,31,.15);border:1px solid rgba(229,66,31,.42);color:#f4906f}
+.pRoom{background:rgba(217,130,43,.13);border:1px solid rgba(217,130,43,.37);color:var(--gold)}
+.pFlag{background:rgba(159,176,204,.1);border:1px solid rgba(159,176,204,.28);color:var(--muted)}
+.pStale{background:rgba(200,16,46,.14);border:1px solid rgba(200,16,46,.4);color:#f2748a}
+.pV{background:rgba(200,16,46,.13);border:1px solid rgba(200,16,46,.36);color:#f2748a}
+.pC{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.33);color:var(--green)}
+.pP{background:rgba(168,85,247,.13);border:1px solid rgba(168,85,247,.36);color:#c99cf9}
+
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+a.b,button.b{font:700 11px/1 var(--mono);letter-spacing:.07em;text-transform:uppercase;
+  padding:10px 14px;border-radius:7px;cursor:pointer;border:1px solid var(--navy-hi);
+  background:var(--navy-dk);color:var(--light);text-decoration:none;white-space:nowrap;transition:.15s}
+a.b:hover,button.b:hover{border-color:var(--red);color:var(--red)}
+button.b.pri{background:var(--red);border-color:var(--red);color:#fff}
+button.b.pri:hover{background:var(--red-dk);border-color:var(--red-dk);color:#fff}
+button.b.ok{background:var(--green-dk);border-color:var(--green-dk);color:#eafff1}
+button.b.sm{padding:7px 10px;font-size:10px}
+
+.give{background:var(--navy);border:1px solid var(--navy-lt);border-top:4px solid var(--gold);
+  border-radius:11px;padding:20px 22px}
+.give h3{margin:0 0 8px;font-size:19px;letter-spacing:-.02em}
+.give p{margin:0 0 11px;color:var(--muted);font-size:14px}
+.give p:last-of-type{margin-bottom:0}
+.give b{color:var(--light)}
+
+.tw{overflow-x:auto;border:1px solid var(--navy-lt);border-radius:11px;background:var(--navy)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:860px}
+th{text-align:left;font:700 10px/1.4 var(--mono);letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);padding:12px 13px;border-bottom:1px solid var(--navy-hi);background:var(--navy-lt)}
+td{padding:12px 13px;border-bottom:1px solid rgba(36,52,86,.75);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+td.rk{font:700 15px/1 var(--mono);color:var(--red);text-align:center;width:42px}
+td.n{font-weight:700}
+td.n div.sm{font:600 11px/1.5 var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+td.mn{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:nowrap}
+td.mn.old{color:#f2748a}
+td .ev{color:var(--muted);font-size:12.5px;margin-top:4px;font-style:italic}
+.want{width:100%;background:var(--navy-dk);border:1px solid var(--navy-hi);border-radius:7px;
+  color:var(--light);font:inherit;font-size:13px;padding:8px 10px;min-width:165px}
+.want::placeholder{color:var(--faint);font-style:italic}
+.want:focus{outline:none;border-color:var(--gold)}
+.want.filled{border-color:rgba(34,197,94,.45)}
+.ctr{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:13.5px}
+.ctr button{width:24px;height:24px;border-radius:6px;border:1px solid var(--navy-hi);
+  background:var(--navy-dk);color:var(--muted);cursor:pointer;font:700 13px/1 var(--mono)}
+.ctr button:hover{border-color:var(--red);color:var(--red)}
+.ctr b{min-width:15px;text-align:center;font-weight:700}
+.ctr b.pos{color:var(--green)} .ctr b.big{color:var(--red)}
+
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.filters button{font:700 10px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;
+  padding:9px 13px;border-radius:7px;cursor:pointer;border:1px solid var(--navy-lt);
+  background:var(--navy);color:var(--muted);transition:.15s}
+.filters button:hover{color:var(--light)}
+.filters button.on{border-color:var(--red);color:var(--red);background:var(--navy-lt)}
+input.search{background:var(--navy);border:1px solid var(--navy-lt);border-radius:7px;color:var(--light);
+  font:inherit;font-size:13px;padding:9px 12px;min-width:210px}
+input.search:focus{outline:none;border-color:var(--red)}
+
+.scr{background:var(--navy);border:1px solid var(--navy-lt);border-radius:11px;padding:17px 19px;margin-bottom:10px}
+.scr .lbl{font:700 10px/1 var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:9px}
+.scr .use{color:var(--muted);font-size:12.5px;margin:0 0 11px}
+.scr q{display:block;font-size:15px;line-height:1.6;quotes:none;border-left:3px solid var(--navy-hi);padding-left:14px}
+.scr .warn{color:#f2748a;font-size:12.5px;margin:11px 0 0;font-weight:650}
+
+.rule{background:var(--navy);border:1px solid var(--navy-lt);border-radius:11px;padding:20px 22px;margin-bottom:11px}
+.rule .no{font:700 11px/1 var(--mono);letter-spacing:.18em;color:var(--red);margin-bottom:9px}
+.rule h3{margin:0 0 10px;font-size:19px;letter-spacing:-.02em}
+.rule p{margin:0 0 11px;color:#c9d3e3;font-size:14.5px}
+.rule p:last-child{margin:0}
+.rule b{color:var(--light)}
+.rule ol,.rule ul{margin:0 0 11px;padding-left:22px;color:#c9d3e3;font-size:14.5px}
+.rule li{margin-bottom:6px}
+.punch{color:var(--red);font-weight:700;border-left:3px solid var(--red);padding-left:14px;margin:14px 0}
+.mth{background:rgba(229,66,31,.07);border:1px solid rgba(229,66,31,.3);border-radius:11px;padding:19px 21px;margin-bottom:20px}
+.mth p{margin:0 0 10px;color:#c9d3e3;font-size:14px}
+.mth p:last-child{margin:0}
+.mth b{color:var(--red)}
+.src{font:500 12px/1.7 var(--mono);color:var(--faint);margin-top:14px}
+
+footer{border-top:1px solid var(--navy-lt);margin-top:44px;padding-top:20px;
+  color:var(--faint);font:500 12px/1.8 var(--mono)}
+button.rs{background:none;border:none;color:var(--faint);font:inherit;cursor:pointer;text-decoration:underline;padding:0}
+button.rs:hover{color:var(--red)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <div class="kick"><a href="../" style="color:inherit;text-decoration:none;border-bottom:1px solid currentColor">Team Elevation</a> / Referral Engine</div>
+  <h1>Eighty percent of your time goes to<br><span>the people who already send you people.</span></h1>
+  <p class="sub">Every business partner stripped out by joining your iMessage history against all 556 of your Telegram contacts. What's left is ranked by referrals actually sent to you. Two touches a day, same core, forever. Many people, many times.</p>
+
+  <div class="hstats">
+    <div class="st g"><b id="s-streak">0</b><span>Day streak</span></div>
+    <div class="st"><b id="s-week">0</b><span>Touches / wk</span></div>
+    <div class="st r"><b id="s-refs">0</b><span>Refs received</span></div>
+    <div class="st o"><b id="s-gave">0</b><span>Refs given</span></div>
+    <div class="st v"><b id="s-want">0</b><span>Mapped</span></div>
+    <div class="st"><b id="s-stale">0</b><span>Stale 60d+</span></div>
+  </div>
+
+  <div class="cyc">
+    <div class="top"><div class="lbl">Lap through the core</div><div class="n"><span id="c-done">0</span> of <span id="c-tot">27</span></div></div>
+    <div class="bar" id="bar"></div>
+    <p class="foot">Two a day gets you all the way around in <b>14 working days</b>. Every person hears from you <b>roughly 18 times a year</b> and you never track a cadence. Fill the bar, it resets, go again.</p>
+  </div>
+</header>
+</div>
+
+<nav><div class="tabs">
+  <button class="on" data-v="today">Today</button>
+  <button data-v="core">The Core</button>
+  <button data-v="pool">Everyone Else</button>
+  <button data-v="rooms">Rooms</button>
+  <button data-v="play">Playbook</button>
+</div></nav>
+
+<div class="wrap">
+
+<!-- TODAY -->
+<section class="view on" id="v-today">
+  <div class="block">
+    <h2 class="sh g">Two deposits</h2>
+    <p class="sd">The two in your core who have gone longest without hearing from you. Line already written. <b>No ask, no business, no agenda.</b></p>
+    <div id="two"></div>
+  </div>
+  <div class="block">
+    <h2 class="sh v">One reversal</h2>
+    <p class="sd">Burg's question. Their answer goes in their <b>What they want</b> box on the Core tab, and that box is what lets you give to them later. Ask it once per person, then never ask them for anything again.</p>
+    <div id="rev"></div>
+  </div>
+  <div class="block">
+    <h2 class="sh o">Give one this week</h2>
+    <div class="give">
+      <h3 id="give-name">Loading</h3>
+      <p id="give-body"></p>
+      <p><b>This is the engine, not a courtesy.</b> A referral you give is worth more than three you ask for, because it is the only thing that makes the rest of your core want to send one back.</p>
+      <div class="btns" id="give-btns"></div>
+    </div>
+  </div>
+  <div class="block">
+    <h2 class="sh">Open loops</h2>
+    <p class="sd">Dated and collectible. These do not rotate. They sit here until they close.</p>
+    <div id="live"></div>
+  </div>
+  <div class="block">
+    <h2 class="sh">This week</h2>
+    <div id="weekly"></div>
+  </div>
+</section>
+
+<!-- CORE -->
+<section class="view" id="v-core">
+  <div class="block">
+    <h2 class="sh">List 1 — proven referral senders</h2>
+    <p class="sd">Ranked by referrals actually sent to you, from the scan of 144,196 messages plus your corrections. <b>Zero business partners.</b> Edit the <b>Got</b> number and the ranking re-sorts itself, so this stays data and never becomes an opinion.</p>
+    <p class="sd"><b>Every empty "What they want" box is a reversal you have not asked yet.</b> You cannot send referrals to your core until you know what a good one looks like for each of them. Filling those boxes is the whole project.</p>
+    <div class="filters" id="cfilters">
+      <button class="on" data-f="all">All</button>
+      <button data-f="P">Profitability</button>
+      <button data-f="C">Credibility</button>
+      <button data-f="V">Visibility</button>
+      <button data-f="room">Has a room</button>
+      <button data-f="nolang">Needs a story</button>
+      <button data-f="stale">Stale 60d+</button>
+      <button data-f="unmapped">Not mapped</button>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th class="rk">#</th><th style="width:19%">Who</th><th style="width:8%">Stage</th>
+        <th style="width:8%">Last</th><th style="width:24%">What THEY want</th>
+        <th style="width:8%">Got</th><th style="width:8%">Gave</th><th style="width:8%"></th>
+      </tr></thead>
+      <tbody id="roster"></tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- POOL -->
+<section class="view" id="v-pool">
+  <div class="block">
+    <h2 class="sh">List 2 — everyone else who actually replies</h2>
+    <p class="sd">Not partners. Real two-way traffic in the last 12 months: <b>they sent you at least three messages and you sent at least one.</b> That floor is what removed the monologues and the people who never re-engaged. Nobody here has sent you a referral yet, so this is your recruiting ground for the core. <b>Promote anyone the moment they send you one.</b></p>
+    <div class="filters">
+      <input class="search" id="psearch" placeholder="Search a name or number">
+      <button class="on" data-pf="all">All</button>
+      <button data-pf="hot">Heavy repliers</button>
+      <button data-pf="recent">Last 60 days</button>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th class="rk">#</th><th style="width:26%">Who</th><th style="width:14%">Last reply</th>
+        <th style="width:11%">You</th><th style="width:11%">Them</th><th style="width:24%"></th>
+      </tr></thead>
+      <tbody id="pooltbl"></tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ROOMS -->
+<section class="view" id="v-rooms">
+  <div class="block">
+    <h2 class="sh o">Rooms, not people</h2>
+    <p class="sd">A room is a cluster of dissatisfied people who already know each other. One conversation, five names. This is the structure that produced the GX4 you were measuring yourself against. Every one of these came out of a relationship you already have.</p>
+    <div id="roomlist"></div>
+  </div>
+</section>
+
+<!-- PLAYBOOK -->
+<section class="view" id="v-play">
+
+  <div class="mth">
+    <p><b>The honest math, so you never build a plan on a fantasy.</b></p>
+    <p>A nurtured source sends <b>2 to 4 introductions a year</b>. Twenty seven of them is <b>54 to 108 a year</b>, or four to nine a month once the core is warm.</p>
+    <p>You need twenty Step 1s a month, so this covers <b>a quarter to a third</b>, and it is the third that costs nothing and never stops. Rooms and cold cover the rest. One introduction every single day would take about <b>eighty</b> nurtured sources: that is the asset you own after May 1, 2027. Build it now, do not bet September 30 on it.</p>
+  </div>
+
+  <div class="block">
+    <h2 class="sh">VCP: the stage decides everything</h2>
+    <p class="sd">Ivan Misner, founder of BNI. Every referral problem you have is asking at the wrong stage.</p>
+    <div class="tw"><table style="min-width:620px">
+      <thead><tr><th style="width:19%">Stage</th><th style="width:33%">What exists</th><th style="width:20%">Referrals?</th><th>What you do</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pill pV">Visibility</span></td><td>They know who you are. Polite. "Good, hope all is well."</td><td style="color:#f2748a;font-weight:700">Never</td><td>Deposits only. Give first. No ask works here, no matter the script.</td></tr>
+        <tr><td><span class="pill pC">Credibility</span></td><td>They trust you and know what you actually do.</td><td style="color:var(--green);font-weight:700">Yes, usually unasked</td><td>Deposits, seed stories, the reversal. Install the language.</td></tr>
+        <tr><td><span class="pill pP">Profitability</span></td><td>You refer each other by habit.</td><td style="color:#c99cf9;font-weight:700">Continuously</td><td>Protect it. Keep giving. Never let it go transactional.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="rule"><div class="no">Rule 01</div><h3>Two a day. Same core. Forever.</h3>
+    <p>Not more names. <b>More trips around the same names.</b> Templeton's entire system is a fixed core database you never graduate from. The Builders Playbook says it in four words: many people, many times.</p>
+    <p>Two a day is small on purpose. A system you can run on your worst day is the only kind that compounds.</p></div>
+
+  <div class="rule"><div class="no">Rule 02</div><h3>Eighty percent goes to proven senders</h3>
+    <p>Past behavior is the only predictor. A person who has sent you one name is worth more than fifty people you think should. <b>Everyone else is a hope, not a source.</b> That is why List 1 is ranked by the Got column and not by how much you like someone.</p></div>
+
+  <div class="rule"><div class="no">Rule 03</div><h3>Never ask twice</h3>
+    <p>One ask per relationship, ever. The second ask is what turns a friend into someone who lets your call ring out. You have a finite amount of that currency and you have been spending it at full speed.</p>
+    <p class="punch">If you already asked and got nothing, it is not the relationship and it is not the script. It is the stage.</p></div>
+
+  <div class="rule"><div class="no">Rule 04</div><h3>"I don't know anybody" has exactly two causes</h3>
+    <ol><li><b>They are at Visibility.</b> Stop asking. Go give.</li>
+    <li><b>They are at Credibility with no language.</b> They trust you and still cannot pattern-match a prospect. Give them a story, never a category.</li></ol>
+    <p>Either way: do not ask again. Go find a referral <b>for them</b> instead.</p></div>
+
+  <div class="rule"><div class="no">Rule 05</div><h3>Close every loop within 48 hours</h3>
+    <p>When a referral comes in, report back to whoever sent it. What happened, what you did, thank you. Templeton and Randall both put this at number one for why referral streams die: <b>the referrer never hears the outcome, so they never send another.</b> Cheapest thing on this page and the most skipped.</p></div>
+
+  <div class="rule"><div class="no">Rule 06</div><h3>Prospects exit. Sources never do.</h3>
+    <p>Your current follow-up engine ranks everyone by days overdue, which means <b>the people ignoring you rise to the top precisely because they are ignoring you.</b> Your worst leads get your best attention every morning and the list only grows.</p>
+    <ul><li><b>Prospects:</b> 7 touches over 45 days, then out of the daily list into a dormant pool that resurfaces twice a year.</li>
+    <li><b>Sources:</b> never exit. 18 to 20 planned touches a year. Zero asks.</li></ul></div>
+
+  <div class="block" style="margin-top:34px">
+    <h2 class="sh v">The only ask</h2>
+    <div class="scr"><div class="lbl">Burg reversal</div>
+      <p class="use">Any Credibility source. Makes you their source before you are ever theirs.</p>
+      <q>How would I know if someone I'm talking to would be a good referral for you?</q>
+      <button class="b cp">Copy</button></div>
+  </div>
+
+  <div class="block">
+    <h2 class="sh g">Deposits, zero ask</h2>
+    <div class="scr"><div class="lbl">Specific recall</div>
+      <p class="use">Strongest deposit there is. One detail from your last conversation, and only that.</p>
+      <q>Hey [name], you popped in my head. How's [the specific thing] going?</q>
+      <button class="b cp">Copy</button></div>
+    <div class="scr"><div class="lbl">Useful, no strings</div>
+      <p class="use">Send something they can use. Do not circle back to business afterward.</p>
+      <q>Saw this and thought of you and [their thing]. No reply needed, just figured you'd want it.</q>
+      <button class="b cp">Copy</button></div>
+    <div class="scr"><div class="lbl">Milestone</div>
+      <q>Congratulations on [thing]. You earned that one. Genuinely happy for you.</q>
+      <button class="b cp">Copy</button></div>
+    <div class="scr"><div class="lbl">Long silence reopen</div>
+      <p class="use">Six months or more. Own the gap, take the pressure off, ask nothing.</p>
+      <q>[Name], it's been way too long and that's on me. No agenda here, I just realized I had no idea how you're doing. What's new?</q>
+      <button class="b cp">Copy</button></div>
+    <div class="scr"><div class="lbl">Handwritten note, twice a year</div>
+      <p class="use">Physical mail. Nobody does this anymore, which is exactly why it works. No business card inside.</p>
+      <q>[Name] — thought of you this week and wanted to say it on paper instead of a screen. Hope the [their thing] is treating you well. — Dwight</q>
+      <button class="b cp">Copy</button></div>
+  </div>
+
+  <div class="block">
+    <h2 class="sh">Seed stories, the trigger install</h2>
+    <p class="sd">This is what fixes referrals that go nowhere. Kevin Gainey, Miriam Catron and Alex Lewis all referred you and none converted, because they cannot recognize a prospect. Categories do not install a pattern. Stories do. Say one, then stop talking.</p>
+    <div class="scr"><div class="lbl">Seed 1 / overtime with nothing to show</div>
+      <q>We just sat down with a guy who'd been pulling doubles for two years and still had nothing in savings. He wasn't broke, he was just unprotected. Watching it click for him was the best part of my month.</q>
+      <button class="b cp">Copy</button>
+      <p class="warn">Do not follow this with "know anybody like that?" That turns a seed into an ask and kills it.</p></div>
+    <div class="scr"><div class="lbl">Seed 2 / newly commission-only</div>
+      <q>Worked with a couple where the husband just went commission-only. Great earner, zero floor under him. We built the floor. She said it was the first time she'd slept through the night in months.</q>
+      <button class="b cp">Copy</button></div>
+    <div class="scr"><div class="lbl">Seed 3 / new baby, no plan</div>
+      <q>Had a couple reach out right after their first kid. Smart people, good jobs, and no plan at all if something happened to either of them. Ninety minutes and it was handled.</q>
+      <button class="b cp">Copy</button></div>
+  </div>
+
+  <div class="block">
+    <h2 class="sh">Collect, access, give, close</h2>
+    <div class="scr"><div class="lbl">Collect an offered introduction</div>
+      <p class="use">They already offered. You are not asking, you are closing a loop they opened.</p>
+      <q>[Name], you mentioned a while back you'd connect me with [person]. Life clearly got busy on both ends. Is that still someone you think would want the conversation, or has that changed?</q>
+      <button class="b cp">Copy</button></div>
+    <div class="scr"><div class="lbl">Ask for the intro, never the number</div>
+      <p class="use">A number is a cold call with extra steps. An introduction is a warm appointment.</p>
+      <q>Rather than me reaching out cold, would you text the three of us so it comes from you?</q>
+      <button class="b cp">Copy</button></div>
+    <div class="scr"><div class="lbl">Room access</div>
+      <p class="use">Ask to attend, not to present. Never pitch the first time you are in someone's room.</p>
+      <q>I'd love to just come sit in on one of your [events / meetings] as a guest. Not to speak, not to pitch, I just want to see what you've built. When's the next one?</q>
+      <button class="b cp">Copy</button></div>
+    <div class="scr"><div class="lbl">Giving one</div>
+      <p class="use">Once a week, every week. The whole system runs on this.</p>
+      <q>[Name], I've got someone who needs exactly what you do. Can I text the three of us and introduce you?</q>
+      <button class="b cp">Copy</button></div>
+    <div class="scr"><div class="lbl">Close the loop, within 48 hours</div>
+      <p class="use">The most skipped step in the business, and the number one reason referral streams die.</p>
+      <q>[Name], wanted to close the loop with you. I sat down with [person] and here's what came of it: [outcome]. Thank you for trusting me with someone you care about. That means more than the appointment did.</q>
+      <button class="b cp">Copy</button></div>
+    <p class="src">Tim Templeton, <em>The Referral of a Lifetime</em> · Ivan Misner, <em>Givers Gain</em> · Bob Burg, <em>Endless Referrals</em> · Stacey Brown Randall, <em>Generating Business Referrals Without Asking</em> · John Jantsch, <em>The Referral Engine</em> · Keith Ferrazzi, <em>Never Eat Alone</em></p>
+  </div>
+</section>
+
+<footer>
+  SMD by September 30, 2026 &nbsp;/&nbsp; Out of teaching May 1, 2027<br>
+  Built July 31, 2026 &nbsp;/&nbsp; 144,196 messages scanned &nbsp;/&nbsp; 556 Telegram partners excluded &nbsp;/&nbsp;
+  <button class="rs" id="reset">Reset all logs</button>
+</footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+var D = {"core": [{"id": "6785240981", "n": "Tony Chavez", "ph": "+16785240981", "refs": 8, "ev": "Ran a 3-way himself to Lorraine from his BNI chapter, Apr 2025", "last": "2026-07-31", "nolast": false, "st": "P", "say": "Tony, how's the BNI chapter treating you these days? Still going every week?", "room": "BNI chapter, weekly", "flag": "", "nolang": false, "s": 24, "r": 15}, {"id": "6263401639", "n": "Mom (Teresita)", "ph": "+16263401639", "refs": 6, "ev": "Six documented referrals and warm hand-offs", "last": "2026-07-31", "nolast": false, "st": "P", "say": "Hi Mom, just wanted to hear your voice. How are you feeling this week?", "room": "", "flag": "", "nolang": false, "s": 139, "r": 108}, {"id": "9196222477", "n": "Brian Mangels", "ph": "+19196222477", "refs": 5, "ev": "Multiple two-way intros, plus the Tuesday AI group invite", "last": "2026-06-03", "nolast": false, "st": "P", "say": "Brian, is that Tuesday morning AI group still running? I'd love to finally come sit in.", "room": "AI group, Tuesdays 9AM Wake Forest", "flag": "", "nolang": false, "s": 28, "r": 36}, {"id": "3145048361", "n": "BJ Lange", "ph": "+13145048361", "refs": 5, "ev": "Gave your info to a couple unprompted, Jun 2021", "last": "2026-07-03", "nolast": false, "st": "P", "say": "BJ, you popped in my head. How'd everything shake out with the settlement?", "room": "", "flag": "", "nolang": false, "s": 71, "r": 61}, {"id": "5853130950", "n": "Rian Hunter", "ph": "+15853130950", "refs": 4, "ev": "Four unprompted intros in a single day, Jul 2023", "last": "2026-06-21", "nolast": false, "st": "C", "say": "Rian, no agenda at all. How are you and Ibby doing these days?", "room": "", "flag": "Barely replies", "nolang": false, "s": 4, "r": 2}, {"id": "9702707477", "n": "Jesse Coquoz", "ph": "+19702707477", "refs": 3, "ev": "Promised to connect you with Charlese, never delivered", "last": "2026-06-22", "nolast": false, "st": "C", "say": "Jesse, you came to mind. How's everything going on your end?", "room": "", "flag": "Owes you one", "nolang": false, "s": 7, "r": 8}, {"id": "7472726421", "n": "Alex Lewis", "ph": "+17472726421", "refs": 2, "ev": "Gave referrals, bad market. Needs a story.", "last": "2026-05-02", "nolast": false, "st": "C", "say": "Alex, you crossed my mind. How have you been?", "room": "", "flag": "", "nolang": true, "s": 5, "r": 3}, {"id": "5713377272", "n": "Ana Bravo", "ph": "+15713377272", "refs": 2, "ev": "Longest-standing client and a friend", "last": "2026-06-23", "nolast": false, "st": "C", "say": "Ana, thinking of you. How's everything going this year?", "room": "", "flag": "Longest client", "nolang": false, "s": 84, "r": 134}, {"id": "2055850381", "n": "Jeff Poore", "ph": "+12055850381", "refs": 2, "ev": "Open door to his kids", "last": "2026-07-16", "nolast": false, "st": "C", "say": "Jeff, how are the kids doing? Feels like they're both onto big things.", "room": "His kids", "flag": "", "nolang": false, "s": 28, "r": 18}, {"id": "9192600769", "n": "Miriam Catron", "ph": "+19192600769", "refs": 2, "ev": "Refers, goes nowhere. Needs a story.", "last": "2026-07-30", "nolast": false, "st": "C", "say": "Miriam, you popped in my head today. How's your week going?", "room": "", "flag": "", "nolang": true, "s": 216, "r": 172}, {"id": "9196081804", "n": "Kevin Gainey", "ph": "+19196081804", "refs": 2, "ev": "Refers freely, none convert. Needs a story.", "last": "2026-07-31", "nolast": false, "st": "C", "say": "Kevin, been a minute. What's got your attention these days?", "room": "", "flag": "", "nolang": true, "s": 171, "r": 132}, {"id": "8472267743", "n": "Jo", "ph": "+18472267743", "refs": 2, "ev": "Friends not working with anyone, asked you to send info", "last": "2026-07-31", "nolast": false, "st": "C", "say": "Jo, thinking of you. How'd everything land with the platform you were excited about?", "room": "", "flag": "", "nolang": false, "s": 12, "r": 8}, {"id": "3155219561", "n": "Reyna Michele", "ph": "+13155219561", "refs": 2, "ev": "Introduces people unprompted, runs events, invited you 7/31", "last": "2026-07-31", "nolast": false, "st": "P", "say": "Reyna, I'm in for the event. What's the date and where do I need to be?", "room": "Real estate + live events", "flag": "", "nolang": false, "s": 44, "r": 36}, {"id": "6304640399", "n": "Kristen Constantino", "ph": "+16304640399", "refs": 2, "ev": "Came in as a referral. Knows a lot of teachers.", "last": "2026-07-31", "nolast": false, "st": "C", "say": "Kristen, it's been a while and that's on me. How's everything going?", "room": "Teachers", "flag": "", "nolang": false, "s": 65, "r": 84}, {"id": "9198156274", "n": "Tammy Chance", "ph": "+19198156274", "refs": 2, "ev": "Thought of someone once. Works with a lot of teachers.", "last": "2026-07-31", "nolast": false, "st": "C", "say": "Tammy, how's the yoga course going? You've got to be close on the 300 hours.", "room": "Teachers", "flag": "", "nolang": false, "s": 38, "r": 30}, {"id": "9544453350", "n": "J. Rutter", "ph": "+19544453350", "refs": 2, "ev": "Introduced you to Victoria. Cold five years.", "last": "2026-07-31", "nolast": true, "st": "V", "say": "It's been years. No agenda, I just wondered how you've been.", "room": "", "flag": "Cold 5 years", "nolang": false, "s": 0, "r": 0}, {"id": "9198012504", "n": "Vinny Smith", "ph": "+19198012504", "refs": 1, "ev": "Introduced you to Dedrick himself, Mar 2026", "last": "2026-06-22", "nolast": false, "st": "C", "say": "Vinny, checking in on you. What's new?", "room": "", "flag": "", "nolang": false, "s": 49, "r": 26}, {"id": "6153004498", "n": "Martin", "ph": "+16153004498", "refs": 1, "ev": "Most mutual thread in your phone", "last": "2026-07-15", "nolast": false, "st": "C", "say": "Martin, it's been too quiet on my end. What's new with you?", "room": "", "flag": "Hard to reach", "nolang": false, "s": 50, "r": 25}, {"id": "2673933658", "n": "Ersula Rivers", "ph": "+12673933658", "refs": 1, "ev": "Gave you names. Added by Dwight 7/31.", "last": "2026-07-20", "nolast": false, "st": "C", "say": "Ersula, you popped in my head. How have you been?", "room": "", "flag": "", "nolang": false, "s": 38, "r": 22}, {"id": "9192858906", "n": "Brandon Woolley", "ph": "+19192858906", "refs": 1, "ev": "Connected you to Gen; sent your number to Kipp", "last": "2026-07-23", "nolast": false, "st": "C", "say": "Brandon, you crossed my mind. What are you into these days?", "room": "", "flag": "", "nolang": false, "s": 10, "r": 8}, {"id": "9194137221", "n": "James Baker", "ph": "+19194137221", "refs": 1, "ev": "Working a referral for you right now", "last": "2026-07-27", "nolast": false, "st": "C", "say": "James, no rush on anything. Just wanted to see how you're doing this week.", "room": "", "flag": "", "nolang": false, "s": 46, "r": 15}, {"id": "9192570926", "n": "Ed Neighbor", "ph": "+19192570926", "refs": 1, "ev": "Referred his kids", "last": "2026-07-27", "nolast": false, "st": "C", "say": "Ed, how's the summer been over there? Feels like I haven't caught you in a minute.", "room": "His kids", "flag": "Hard to pin down", "nolang": false, "s": 127, "r": 112}, {"id": "7576728562", "n": "Andrew Miller", "ph": "+17576728562", "refs": 1, "ev": "Gave you names. Added by Dwight 7/31.", "last": "2026-07-27", "nolast": false, "st": "C", "say": "Andrew, checking in on you. How's everything going?", "room": "", "flag": "", "nolang": false, "s": 43, "r": 30}, {"id": "9176796350", "n": "Anthony Atti", "ph": "+19176796350", "refs": 0, "ev": "Building it. Francesca's dad, Dana's husband.", "last": "2026-07-29", "nolast": false, "st": "C", "say": "Anthony, good catching up. How's the family doing?", "room": "", "flag": "Household: Dana", "nolang": false, "s": 24, "r": 14}, {"id": "4153107854", "n": "Mike Bernstein", "ph": "+14153107854", "refs": 0, "ev": "1,031 messages and he initiates more than you do. Added by Dwight 7/31.", "last": "2026-07-31", "nolast": false, "st": "C", "say": "Mike, killing the phone tag. I'm free Tuesday at 2 or Thursday at 10. Pick one.", "room": "", "flag": "Phone tag", "nolang": false, "s": 121, "r": 90}, {"id": "9515290796", "n": "Juan Luna", "ph": "+19515290796", "refs": 0, "ev": "First boss. Offered to introduce you to his office faculty.", "last": "2026-07-31", "nolast": true, "st": "C", "say": "Juan, school is about to start back up. Still good to meet the faculty once things settle?", "room": "His office faculty, when school starts", "flag": "WhatsApp", "nolang": false, "s": 0, "r": 0}, {"id": "8585318271", "n": "Taylor Okamura", "ph": "+18585318271", "refs": 0, "ev": "Added by you 7/31", "last": "2026-07-31", "nolast": true, "st": "C", "say": "Taylor, you popped in my head. How've you been?", "room": "", "flag": "WhatsApp", "nolang": false, "s": 0, "r": 0}], "pool": [{"id": "2482291494", "n": "Matt Blake", "ph": "+12482291494", "last": "2026-07-18", "s": 129, "r": 103}, {"id": "9196566536", "n": "Chrissie Ficken", "ph": "+19196566536", "last": "2026-06-29", "s": 119, "r": 83}, {"id": "6263534997", "n": "Amanda Dillon", "ph": "+16263534997", "last": "2026-05-28", "s": 47, "r": 60}, {"id": "1172788048", "n": "(1172788048)", "ph": "+11172788048", "last": "2026-05-10", "s": 33, "r": 56}, {"id": "9198007014", "n": "Laurie Ann", "ph": "+19198007014", "last": "2025-12-31", "s": 62, "r": 46}, {"id": "4157918705", "n": "(4157918705)", "ph": "+14157918705", "last": "2026-03-20", "s": 13, "r": 45}, {"id": "9193497894", "n": "Lince", "ph": "+19193497894", "last": "2026-07-03", "s": 17, "r": 40}, {"id": "9193280365", "n": "Caleb", "ph": "+19193280365", "last": "2026-06-10", "s": 53, "r": 35}, {"id": "8647418860", "n": "Becca/ Michael", "ph": "+18647418860", "last": "2026-02-27", "s": 45, "r": 33}, {"id": "9412140954", "n": "(9412140954)", "ph": "+19412140954", "last": "2025-12-29", "s": 22, "r": 32}, {"id": "9192192946", "n": "William King", "ph": "+19192192946", "last": "2026-06-09", "s": 32, "r": 32}, {"id": "9193495723", "n": "Bobby Elder", "ph": "+19193495723", "last": "2026-07-27", "s": 29, "r": 31}, {"id": "3137046276", "n": "Jennifer Brown", "ph": "+13137046276", "last": "2026-07-18", "s": 40, "r": 29}, {"id": "9198662533", "n": "Victor Fayehun", "ph": "+19198662533", "last": "2026-06-21", "s": 38, "r": 28}, {"id": "6463269993", "n": "Aloyse Brown", "ph": "+16463269993", "last": "2026-07-27", "s": 32, "r": 27}, {"id": "7075337600", "n": "Daniel Wieman", "ph": "+17075337600", "last": "2026-06-21", "s": 22, "r": 27}, {"id": "7074965359", "n": "Tim Dalporto", "ph": "+17074965359", "last": "2026-07-29", "s": 34, "r": 26}, {"id": "2526267083", "n": "Kelly Gardner", "ph": "+12526267083", "last": "2026-07-30", "s": 33, "r": 24}, {"id": "3369713908", "n": "Judy McInnis", "ph": "+13369713908", "last": "2026-02-24", "s": 26, "r": 22}, {"id": "3233978117", "n": "Steve Robles", "ph": "+13233978117", "last": "2026-07-06", "s": 30, "r": 22}, {"id": "8142419519", "n": "Chris Sullivan", "ph": "+18142419519", "last": "2026-03-28", "s": 36, "r": 21}, {"id": "2119422014", "n": "(2119422014)", "ph": "+12119422014", "last": "2026-07-05", "s": 1, "r": 19}, {"id": "5103979867", "n": "Jason Wong", "ph": "+15103979867", "last": "2026-06-25", "s": 26, "r": 19}, {"id": "9194344844", "n": "Julie Oster", "ph": "+19194344844", "last": "2026-04-19", "s": 30, "r": 19}, {"id": "9196249288", "n": "Rick Bain", "ph": "+19196249288", "last": "2026-07-27", "s": 35, "r": 19}, {"id": "9197497979", "n": "Tim McWilliams", "ph": "+19197497979", "last": "2026-05-26", "s": 28, "r": 19}, {"id": "8339372975", "n": "(8339372975)", "ph": "+18339372975", "last": "2026-07-22", "s": 1, "r": 18}, {"id": "4142439399", "n": "Gerald Porter", "ph": "+14142439399", "last": "2026-07-27", "s": 41, "r": 18}, {"id": "6577010335", "n": "(6577010335)", "ph": "+16577010335", "last": "2025-12-17", "s": 14, "r": 17}, {"id": "3369716977", "n": "Adrienne McInnis", "ph": "+13369716977", "last": "2026-06-10", "s": 18, "r": 17}, {"id": "4157347514", "n": "Nicolai Lipscomb", "ph": "+14157347514", "last": "2026-07-11", "s": 13, "r": 17}, {"id": "5406641817", "n": "(5406641817)", "ph": "+15406641817", "last": "2026-04-30", "s": 21, "r": 16}, {"id": "9252060602", "n": "Andie Masias", "ph": "+19252060602", "last": "2025-12-16", "s": 15, "r": 16}, {"id": "2405066694", "n": "Manoj Vee", "ph": "+12405066694", "last": "2025-09-29", "s": 12, "r": 16}, {"id": "8646014807", "n": "Poonam Khalon", "ph": "+18646014807", "last": "2026-05-21", "s": 17, "r": 16}, {"id": "9083465206", "n": "Christine Middleton", "ph": "+19083465206", "last": "2026-06-28", "s": 17, "r": 15}, {"id": "9198307431", "n": "Chuck Belden", "ph": "+19198307431", "last": "2026-06-22", "s": 25, "r": 15}, {"id": "9195209509", "n": "Dana Atti", "ph": "+19195209509", "last": "2025-11-27", "s": 24, "r": 15}, {"id": "7039866595", "n": "David Portillo", "ph": "+17039866595", "last": "2026-06-24", "s": 18, "r": 15}, {"id": "9196003779", "n": "Tiffany", "ph": "+19196003779", "last": "2025-12-02", "s": 24, "r": 15}, {"id": "9197029260", "n": "Victor Rojas", "ph": "+19197029260", "last": "2026-07-16", "s": 19, "r": 15}, {"id": "5043524348", "n": "Anton Liberopoulus", "ph": "+15043524348", "last": "2025-12-25", "s": 15, "r": 14}, {"id": "8144341398", "n": "Grigoriy G.", "ph": "+18144341398", "last": "2026-06-22", "s": 21, "r": 14}, {"id": "9109877860", "n": "Leigh-Anne", "ph": "+19109877860", "last": "2026-07-20", "s": 11, "r": 14}, {"id": "9199314627", "n": "Megan Maloney", "ph": "+19199314627", "last": "2026-05-22", "s": 15, "r": 14}, {"id": "3109184812", "n": "(3109184812)", "ph": "+13109184812", "last": "2026-07-10", "s": 20, "r": 13}, {"id": "5595809004", "n": "Austin Hoffschneider", "ph": "+15595809004", "last": "2026-05-03", "s": 27, "r": 13}, {"id": "9198015059", "n": "Forrest Travison", "ph": "+19198015059", "last": "2026-06-29", "s": 21, "r": 13}, {"id": "5186986121", "n": "Greg Groh", "ph": "+15186986121", "last": "2026-05-10", "s": 10, "r": 13}, {"id": "9312669127", "n": "Mason Doyle", "ph": "+19312669127", "last": "2026-07-30", "s": 25, "r": 13}, {"id": "9847685050", "n": "Aaron Kirwan", "ph": "+19847685050", "last": "2026-07-29", "s": 19, "r": 12}, {"id": "9194573564", "n": "Bart Nourse", "ph": "+19194573564", "last": "2026-07-30", "s": 16, "r": 12}, {"id": "5595145837", "n": "Kim Sciaqua", "ph": "+15595145837", "last": "2026-04-21", "s": 14, "r": 12}, {"id": "9194554474", "n": "(9194554474)", "ph": "+19194554474", "last": "2025-11-11", "s": 12, "r": 11}, {"id": "9196567255", "n": "Audencio Morales", "ph": "+19196567255", "last": "2026-07-24", "s": 13, "r": 11}, {"id": "9192259639", "n": "EbonieAJ Alston-Jenkins", "ph": "+19192259639", "last": "2026-07-02", "s": 12, "r": 11}, {"id": "9085814358", "n": "Nancy Selfridge", "ph": "+19085814358", "last": "2026-07-01", "s": 8, "r": 11}, {"id": "9197241301", "n": "Dave Severance", "ph": "+19197241301", "last": "2026-06-22", "s": 19, "r": 10}, {"id": "9199610062", "n": "Elias Kitts", "ph": "+19199610062", "last": "2026-04-16", "s": 13, "r": 10}, {"id": "5039530706", "n": "Shea Dillon", "ph": "+15039530706", "last": "2026-06-30", "s": 8, "r": 10}, {"id": "7046059248", "n": "Angel Marin", "ph": "+17046059248", "last": "2026-06-21", "s": 14, "r": 9}, {"id": "3302062507", "n": "Chantelle Taylor", "ph": "+13302062507", "last": "2026-07-28", "s": 11, "r": 9}, {"id": "4243922741", "n": "Kenny Johnson", "ph": "+14243922741", "last": "2026-07-29", "s": 15, "r": 9}, {"id": "9197405959", "n": "Kim Miner", "ph": "+19197405959", "last": "2026-03-09", "s": 8, "r": 9}, {"id": "9195257114", "n": "Patrick", "ph": "+19195257114", "last": "2025-08-11", "s": 9, "r": 9}, {"id": "9196412470", "n": "Tyson Watson", "ph": "+19196412470", "last": "2026-01-03", "s": 10, "r": 9}, {"id": "3365524274", "n": "(3365524274)", "ph": "+13365524274", "last": "2026-06-18", "s": 6, "r": 8}, {"id": "7207571891", "n": "(7207571891)", "ph": "+17207571891", "last": "2026-03-14", "s": 11, "r": 8}, {"id": "8182036747", "n": "Cody and Madison", "ph": "+18182036747", "last": "2025-12-09", "s": 4, "r": 8}, {"id": "4029812014", "n": "Dennis Herling", "ph": "+14029812014", "last": "2026-06-23", "s": 13, "r": 8}, {"id": "9193894800", "n": "Kyle Sonday", "ph": "+19193894800", "last": "2026-04-01", "s": 16, "r": 8}, {"id": "9192822531", "n": "Michael Ushry", "ph": "+19192822531", "last": "2026-07-22", "s": 7, "r": 8}, {"id": "9195995994", "n": "Travis Allen", "ph": "+19195995994", "last": "2026-06-22", "s": 12, "r": 8}, {"id": "9198092364", "n": "Adam Gross", "ph": "+19198092364", "last": "2026-01-19", "s": 9, "r": 7}, {"id": "9092773061", "n": "Adam Porrino", "ph": "+19092773061", "last": "2026-04-15", "s": 4, "r": 7}, {"id": "5129203328", "n": "Amanda Massey", "ph": "+15129203328", "last": "2026-06-18", "s": 19, "r": 7}, {"id": "9197959347", "n": "Chris Raughly", "ph": "+19197959347", "last": "2026-06-21", "s": 11, "r": 7}, {"id": "9196560889", "n": "Derrek Mechanic", "ph": "+19196560889", "last": "2025-09-16", "s": 20, "r": 7}, {"id": "9739787960", "n": "Jaime Jimenez", "ph": "+19739787960", "last": "2025-10-09", "s": 9, "r": 7}, {"id": "9197561642", "n": "Jessica Gonzalez", "ph": "+19197561642", "last": "2025-12-05", "s": 5, "r": 7}, {"id": "5146015673", "n": "Jose Acu\u00f1a", "ph": "+15146015673", "last": "2026-06-27", "s": 9, "r": 7}, {"id": "2485561021", "n": "Joseph Raymond", "ph": "+12485561021", "last": "2025-12-10", "s": 6, "r": 7}, {"id": "2063312426", "n": "Kieran", "ph": "+12063312426", "last": "2025-12-25", "s": 21, "r": 7}, {"id": "8585272110", "n": "Rebecca Everett", "ph": "+18585272110", "last": "2025-12-05", "s": 5, "r": 7}, {"id": "9847898299", "n": "Shapiro Ilia", "ph": "+19847898299", "last": "2026-03-25", "s": 10, "r": 7}, {"id": "9193390986", "n": "Teddy Mehalic", "ph": "+19193390986", "last": "2025-12-25", "s": 10, "r": 7}, {"id": "8162060659", "n": "(8162060659)", "ph": "+18162060659", "last": "2026-07-21", "s": 10, "r": 6}, {"id": "8185314388", "n": "(8185314388)", "ph": "+18185314388", "last": "2026-01-30", "s": 3, "r": 6}, {"id": "2095809520", "n": "Amanda Strader", "ph": "+12095809520", "last": "2026-03-18", "s": 11, "r": 6}, {"id": "9196161801", "n": "Carlo Ruggiero", "ph": "+19196161801", "last": "2026-06-23", "s": 9, "r": 6}, {"id": "9092278074", "n": "Dan Porrino", "ph": "+19092278074", "last": "2026-04-17", "s": 6, "r": 6}, {"id": "9195834460", "n": "Derrick Mobile Mechanic Office", "ph": "+19195834460", "last": "2025-08-22", "s": 13, "r": 6}, {"id": "3127700114", "n": "Joe Onystok", "ph": "+13127700114", "last": "2026-06-03", "s": 1, "r": 6}, {"id": "3142816421", "n": "Lorraine", "ph": "+13142816421", "last": "2025-10-28", "s": 2, "r": 6}, {"id": "3363918491", "n": "Pa'yton Silver", "ph": "+13363918491", "last": "2026-07-21", "s": 6, "r": 6}, {"id": "9194435776", "n": "Scott Moore", "ph": "+19194435776", "last": "2026-01-27", "s": 7, "r": 6}, {"id": "9842755633", "n": "Scott Sweeney", "ph": "+19842755633", "last": "2025-12-12", "s": 12, "r": 6}, {"id": "9197579832", "n": "Vicky Abarca", "ph": "+19197579832", "last": "2026-03-18", "s": 12, "r": 6}, {"id": "2058438093", "n": "(2058438093)", "ph": "+12058438093", "last": "2026-06-18", "s": 5, "r": 5}, {"id": "4844332068", "n": "Berry Gellman", "ph": "+14844332068", "last": "2026-02-28", "s": 6, "r": 5}, {"id": "5596764276", "n": "Brett Cruz", "ph": "+15596764276", "last": "2026-04-04", "s": 7, "r": 5}, {"id": "4042721607", "n": "Bria Carmichael", "ph": "+14042721607", "last": "2026-03-18", "s": 4, "r": 5}, {"id": "3236729765", "n": "Cheritha Lyft", "ph": "+13236729765", "last": "2025-12-11", "s": 6, "r": 5}, {"id": "9193603536", "n": "Christine Oentung", "ph": "+19193603536", "last": "2026-04-21", "s": 6, "r": 5}, {"id": "9195891435", "n": "Claudia Richard", "ph": "+19195891435", "last": "2026-01-24", "s": 9, "r": 5}, {"id": "8186452081", "n": "Danny Ruzich", "ph": "+18186452081", "last": "2026-03-02", "s": 6, "r": 5}, {"id": "9196213164", "n": "David Wilder", "ph": "+19196213164", "last": "2026-07-31", "s": 5, "r": 5}, {"id": "3374127053", "n": "Didi Sagu", "ph": "+13374127053", "last": "2025-12-15", "s": 6, "r": 5}, {"id": "9729757167", "n": "Geoff Parker", "ph": "+19729757167", "last": "2025-12-02", "s": 5, "r": 5}, {"id": "9199318475", "n": "Ibrahim", "ph": "+19199318475", "last": "2026-02-28", "s": 6, "r": 5}, {"id": "3102287970", "n": "Kim Gray", "ph": "+13102287970", "last": "2026-05-01", "s": 8, "r": 5}, {"id": "9194184298", "n": "Laura Smith", "ph": "+19194184298", "last": "2026-05-12", "s": 3, "r": 5}, {"id": "9199062160", "n": "Mariah", "ph": "+19199062160", "last": "2025-12-25", "s": 6, "r": 5}, {"id": "5154222332", "n": "Mary Anne Chew", "ph": "+15154222332", "last": "2026-07-20", "s": 10, "r": 5}, {"id": "3865237283", "n": "Peter Matefi", "ph": "+13865237283", "last": "2025-12-10", "s": 4, "r": 5}, {"id": "8049710501", "n": "Sean Church", "ph": "+18049710501", "last": "2026-07-29", "s": 18, "r": 5}, {"id": "9802224051", "n": "Shervell", "ph": "+19802224051", "last": "2025-12-11", "s": 6, "r": 5}, {"id": "9843702881", "n": "Vance", "ph": "+19843702881", "last": "2026-06-06", "s": 11, "r": 5}, {"id": "5712122701", "n": "(5712122701)", "ph": "+15712122701", "last": "2025-12-06", "s": 3, "r": 4}, {"id": "6677863476", "n": "(6677863476)", "ph": "+16677863476", "last": "2026-06-18", "s": 5, "r": 4}, {"id": "9194368201", "n": "(9194368201)", "ph": "+19194368201", "last": "2025-12-04", "s": 3, "r": 4}, {"id": "9199644496", "n": "(9199644496)", "ph": "+19199644496", "last": "2026-07-20", "s": 3, "r": 4}, {"id": "7043455706", "n": "Anthony Rogers", "ph": "+17043455706", "last": "2025-12-11", "s": 1, "r": 4}, {"id": "9192680899", "n": "Jacqueline", "ph": "+19192680899", "last": "2025-12-09", "s": 5, "r": 4}, {"id": "9107837771", "n": "Jamie Sneeringer", "ph": "+19107837771", "last": "2025-12-16", "s": 3, "r": 4}, {"id": "5597607363", "n": "Jeremiah Hodges", "ph": "+15597607363", "last": "2026-04-03", "s": 8, "r": 4}, {"id": "2403777223", "n": "Julian Coles", "ph": "+12403777223", "last": "2026-03-22", "s": 8, "r": 4}, {"id": "3107736071", "n": "Kimi Cox", "ph": "+13107736071", "last": "2026-07-31", "s": 6, "r": 4}, {"id": "9198896652", "n": "Mike White", "ph": "+19198896652", "last": "2026-03-07", "s": 9, "r": 4}, {"id": "9196062551", "n": "Paul Roberts", "ph": "+19196062551", "last": "2025-12-25", "s": 5, "r": 4}, {"id": "8645906969", "n": "Randy Grate", "ph": "+18645906969", "last": "2025-12-05", "s": 4, "r": 4}, {"id": "2488541646", "n": "Rhonda McCullough", "ph": "+12488541646", "last": "2025-12-11", "s": 7, "r": 4}, {"id": "7046359510", "n": "Sergei", "ph": "+17046359510", "last": "2025-12-12", "s": 5, "r": 4}, {"id": "9194951274", "n": "Shane Tharrington", "ph": "+19194951274", "last": "2026-07-29", "s": 2, "r": 4}, {"id": "7143507310", "n": "Vanessa Wada", "ph": "+17143507310", "last": "2026-07-17", "s": 4, "r": 4}, {"id": "2096179528", "n": "(2096179528)", "ph": "+12096179528", "last": "2026-04-10", "s": 3, "r": 3}, {"id": "2096812747", "n": "(2096812747)", "ph": "+12096812747", "last": "2026-04-07", "s": 3, "r": 3}, {"id": "2603360714", "n": "(2603360714)", "ph": "+12603360714", "last": "2026-05-21", "s": 6, "r": 3}, {"id": "9095991508", "n": "(9095991508)", "ph": "+19095991508", "last": "2025-12-07", "s": 1, "r": 3}, {"id": "9195915159", "n": "(9195915159)", "ph": "+19195915159", "last": "2026-02-20", "s": 5, "r": 3}, {"id": "9734091380", "n": "(9734091380)", "ph": "+19734091380", "last": "2026-07-27", "s": 4, "r": 3}, {"id": "6093065353", "n": "Cory Marrone", "ph": "+16093065353", "last": "2025-12-10", "s": 2, "r": 3}, {"id": "7042319594", "n": "Dennis Wilkerson", "ph": "+17042319594", "last": "2025-12-13", "s": 1, "r": 3}, {"id": "6266760078", "n": "Elizabeth Nelson", "ph": "+16266760078", "last": "2026-07-03", "s": 3, "r": 3}, {"id": "3365043975", "n": "Gerianne Shotwell", "ph": "+13365043975", "last": "2025-12-12", "s": 3, "r": 3}, {"id": "9842639990", "n": "Johanna LinkedIn", "ph": "+19842639990", "last": "2026-03-18", "s": 5, "r": 3}, {"id": "6613735228", "n": "Josh Elliott", "ph": "+16613735228", "last": "2025-12-08", "s": 3, "r": 3}, {"id": "7025811063", "n": "Kelley Carrr", "ph": "+17025811063", "last": "2025-11-28", "s": 3, "r": 3}, {"id": "7042992077", "n": "Michele Bell", "ph": "+17042992077", "last": "2025-12-25", "s": 2, "r": 3}, {"id": "9198861793", "n": "Miguel Jimenez", "ph": "+19198861793", "last": "2026-06-21", "s": 1, "r": 3}, {"id": "5305269314", "n": "Uncle sean Dillon", "ph": "+15305269314", "last": "2026-06-22", "s": 2, "r": 3}, {"id": "7046443817", "n": "Will Karl", "ph": "+17046443817", "last": "2026-07-12", "s": 5, "r": 3}, {"id": "2392349857", "n": "Wiseman Jeannot", "ph": "+12392349857", "last": "2026-02-28", "s": 4, "r": 3}], "rooms": [{"id": "r-reyna", "n": "Reyna Michele's events", "who": "Reyna Michele", "st": "LIVE, waiting on the date", "why": "Real estate. Independent contractors, commission only, no benefits, no floor, feast or famine. A cluster of dissatisfied people who all already know each other. Structurally the same door that produced the GX4 you were measuring yourself against.", "act": "She invited you. Get the date, calendar it, and go as a guest. Do not pitch."}, {"id": "r-juan", "n": "Juan Luna's office faculty", "who": "Juan Luna", "st": "Promised, triggers when school starts", "why": "Your first boss offered to introduce you to his entire office faculty. A whole staff from one introduction, made by someone with standing in the room. Highest-leverage new door you have.", "act": "School starts in weeks. Confirm now so it does not slip, and ask him to make it a group introduction rather than a list of names."}, {"id": "r-bni", "n": "Tony Chavez's BNI chapter", "who": "Tony Chavez", "st": "Open, never worked", "why": "BNI is a structured weekly referral exchange. Tony has already proven he brings you people from it: he ran the Lorraine introduction himself in April 2025 without being asked.", "act": "Ask to attend one meeting as his guest. Attend, do not present."}, {"id": "r-ai", "n": "AI group, Tuesdays 9AM Wake Forest", "who": "Brian Mangels", "st": "Standing invitation open", "why": "Weekly, local, invitation open since October 2025. Business owners and operators experimenting with AI, which is your other natural conversation.", "act": "Pick a Tuesday and tell Brian you are coming."}, {"id": "r-teach", "n": "The teacher cluster", "who": "Tammy Chance + Kristen Constantino", "st": "Two independent doors", "why": "Two separate sources into the same cluster is a pattern, not a coincidence. Teachers are not your recruit profile, but every teacher has a spouse, and you are living proof of a teacher on the way out.", "act": "Work it for spouses and for the ones already looking. Do not skip the door because of the label on it."}, {"id": "r-kids", "n": "The grown-kids doors", "who": "Jeff Poore + Ed Neighbor", "st": "Both already offered", "why": "Two fathers who have each pointed you at their own adult children. Parents do not offer their kids to someone they do not trust.", "act": "Ask each for the introduction rather than the number, and let it come from them."}, {"id": "r-chamber", "n": "Cary Chamber of Commerce", "who": "Tony's suggestion, July 14", "st": "On your ledger, never actioned", "why": "Local business owners, structured meetings. Already a task and never touched.", "act": "Pick a date and go once before making any judgment about it."}, {"id": "r-church", "n": "Elevation Raleigh financial literacy event", "who": "Joi Roddy", "st": "Blessed May 2025, never executed", "why": "A financial literacy event inside a large church with the pastor's blessing already attached. It was live and simply never happened.", "act": "You cut Joi from both lists, so this door currently has nobody holding it. Put her back or let this one go, but do not leave it half open."}], "live": [{"id": "l1", "n": "Reyna Michele: get the event date", "ph": "+13155219561", "due": "Sent July 31, awaiting reply", "d": "She initiated the invitation. Highest-value open item you have. Calendar it the second she answers."}, {"id": "l2", "n": "Juan Luna: lock the faculty introduction", "ph": "+19515290796", "due": "Triggers when school starts, August", "d": "Your first boss offered to introduce you to his whole office faculty once school is back. Confirm it now, before the first week swallows everyone."}, {"id": "l3", "n": "Tammy Chance: the June 15 question", "ph": "+19198156274", "due": "After she replies about yoga", "d": "In March she wrote that she was trying to last until June 15 and each week was getting harder. It is now six weeks past that. Ask only: you mentioned you were trying to make it to June 15, how'd that go?"}, {"id": "l4", "n": "Jesse Coquoz: collect what he offered", "ph": "+19702707477", "due": "Open since October 2022", "d": "You introduced him to Olivia and he said he would connect you with Charlese. He offered because you gave first. Close the loop, do not make a new ask."}, {"id": "l5", "n": "David Wilder's dad: already referred", "ph": "+19196213164", "due": "Open since December 2025", "d": "David referred his own dad and it was never worked. He is on the wider list now, not the core, but the referral is still sitting there uncollected. Collecting, not prospecting."}], "weekly": [{"id": "w-give", "n": "Give one referral", "d": "Send business to someone in your core. This is the engine, not a courtesy. If you do only one thing on this page every week, do this one."}, {"id": "w-room", "n": "Touch one room", "d": "Attend, ask to attend, or reopen one of the eight. Rooms compound faster than people."}, {"id": "w-seed", "n": "Plant one seed story", "d": "Especially Gainey, Miriam and Alex. All three already refer. They just cannot recognize a prospect yet."}, {"id": "w-loop", "n": "Close every loop", "d": "Any referral that came in this week: report the outcome back to whoever sent it, inside 48 hours. Most skipped step in the business."}, {"id": "w-ten", "n": "Hit ten touches", "d": "Two a day, five days. If you hit ten, the system ran. If you did not, no amount of hustle on Monday fixes it."}]};
+var CORE=D.core, POOL=D.pool, ROOMS=D.rooms, LIVE=D.live, WEEKLY=D.weekly;
+
+var KEY="rfm_engine_v3";
+var S={t:{},want:{},gave:{},got:{},done:{},pick:null,cyc:null,promoted:[]};
+try{var raw=localStorage.getItem(KEY);if(raw)S=Object.assign(S,JSON.parse(raw));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function refs(p){return (S.got[p.id]!==undefined)?S.got[p.id]:p.refs;}
+function last(p){var a=S.t[p.id];return(a&&a.length)?a[a.length-1]:p.last;}
+function days(p){
+  var v=Math.round((new Date(today()+"T12:00:00")-new Date(last(p)+"T12:00:00"))/864e5);return v<0?0:v;}
+function hit(id){var a=S.t[id];return !!(a&&a.length&&a[a.length-1]===today());}
+function weekKey(){var d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");}
+function fmt(p){var d=(p||"").replace(/\D/g,"");if(d.length===11)d=d.slice(1);
+  return d.length===10?"("+d.slice(0,3)+") "+d.slice(3,6)+"-"+d.slice(6):p;}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function byId(id){for(var i=0;i<CORE.length;i++)if(CORE[i].id===id)return CORE[i];return null;}
+
+/* promoted pool members join the core */
+(function(){
+  (S.promoted||[]).forEach(function(id){
+    if(byId(id))return;
+    for(var i=0;i<POOL.length;i++) if(POOL[i].id===id){
+      var q=POOL[i];
+      CORE.push({id:q.id,n:q.n,ph:q.ph,refs:1,ev:"Promoted from List 2 after sending you a referral.",
+        last:q.last,nolast:false,st:"C",say:"You popped in my head. How have you been?",room:"",flag:"Promoted",nolang:false,s:q.s,r:q.r});
+      break;
+    }
+  });
+})();
+
+function ranked(){return CORE.slice().sort(function(a,b){return refs(b)-refs(a)||days(b)-days(a);});}
+
+function twoToday(){
+  var t=today();
+  if(S.pick&&S.pick.d===t&&S.pick.ids){
+    var k=S.pick.ids.map(byId).filter(Boolean);
+    if(k.length===2)return k;
+  }
+  var q=CORE.filter(function(p){return p.st!=="V";}).sort(function(a,b){return days(b)-days(a);}).slice(0,2);
+  S.pick={d:t,ids:q.map(function(x){return x.id;})};save();
+  return q;
+}
+
+function pills(p){
+  var h='<span class="pill p'+p.st+'">'+({V:"Visibility",C:"Credibility",P:"Profitability"}[p.st])+'</span>';
+  if(refs(p)>0)h+='<span class="pill pRef">'+refs(p)+' sent you</span>';
+  if(p.room)h+='<span class="pill pRoom">'+esc(p.room)+'</span>';
+  if(p.flag)h+='<span class="pill pFlag">'+esc(p.flag)+'</span>';
+  if(p.nolang)h+='<span class="pill pFlag">Needs a story</span>';
+  if(p.nolast)h+='<span class="pill pFlag">No iMessage history</span>';
+  var d=days(p);
+  if(d>=60)h+='<span class="pill pStale">'+d+' days quiet</span>';
+  return h;
+}
+
+function renderTwo(){
+  document.getElementById("two").innerHTML=twoToday().map(function(p){
+    var dn=hit(p.id),d=days(p);
+    return '<div class="card lg dep'+(dn?" done":"")+'">'
+      +'<div class="nm">'+esc(p.n)+'<small>'+fmt(p.ph)+'</small></div>'
+      +'<div class="meta">'+(p.nolast?"On WhatsApp, no iMessage history":"Last touch "+last(p)+" · "+d+" days ago")+'</div>'
+      +'<div style="margin-top:9px">'+pills(p)+'</div>'
+      +'<div class="note">'+esc(p.ev)+'</div>'
+      +'<div class="say"><small>Send this</small>'+esc(p.say)+'</div>'
+      +'<div class="btns"><a class="b" href="sms:'+p.ph+'">Text</a><a class="b" href="tel:'+p.ph+'">Call</a>'
+      +'<button class="b" data-copy="'+esc(p.say)+'">Copy</button>'
+      +'<button class="b '+(dn?"ok":"pri")+'" data-t="'+p.id+'">'+(dn?"Logged ✓":"Log deposit")+'</button></div></div>';
+  }).join("");
+}
+
+function renderRev(){
+  var two=twoToday();
+  var pool=CORE.filter(function(p){return p.st!=="V"&&two.indexOf(p)===-1&&!(S.want[p.id]||"").trim();});
+  if(!pool.length)pool=CORE.filter(function(p){return two.indexOf(p)===-1;});
+  var r=pool[(new Date().getDate())%pool.length];
+  var k="rev-"+today(),dn=!!S.done[k];
+  document.getElementById("rev").innerHTML='<div class="card lg rev'+(dn?" done":"")+'">'
+    +'<div class="nm">'+esc(r.n)+'<small>'+fmt(r.ph)+'</small></div>'
+    +'<div class="meta">'+((S.want[r.id]||"").trim()?"Already mapped":"Not mapped yet")+' · ask once, then never ask again</div>'
+    +'<div class="say"><small>Ask this</small>How would I know if someone I\'m talking to would be a good referral for you?</div>'
+    +'<div class="why">Their answer goes in their What they want box on the Core tab. That box is what lets you give to them, and giving is what makes them send you people.</div>'
+    +'<div class="btns"><a class="b" href="sms:'+r.ph+'">Text</a>'
+    +'<button class="b" data-copy="How would I know if someone I&#39;m talking to would be a good referral for you?">Copy</button>'
+    +'<button class="b '+(dn?"ok":"pri")+'" data-done="'+k+'">'+(dn?"Logged ✓":"Log reversal")+'</button></div></div>';
+}
+
+function renderGive(){
+  var k="give-"+weekKey(),dn=!!S.done[k];
+  var cand=CORE.filter(function(p){return (S.want[p.id]||"").trim().length>3;})
+    .sort(function(a,b){return ((S.gave[a.id]||0)-(S.gave[b.id]||0))||(refs(b)-refs(a));});
+  var pick=cand[0];
+  document.getElementById("give-name").textContent=dn?"Given this week ✓":(pick?"Send one to "+pick.n:"Nothing to give yet");
+  document.getElementById("give-body").innerHTML=pick
+    ? 'They want: <b>'+esc(S.want[pick.id])+'</b>. They have sent you <b>'+refs(pick)+'</b>. You have sent them <b>'+(S.gave[pick.id]||0)+'</b>.'
+    : 'Every <b>What they want</b> box is still empty, so there is nothing you can send anyone yet. Ask one person the reversal above and fill in one box. That is the unlock for the entire system.';
+  document.getElementById("give-btns").innerHTML=
+    (pick?'<a class="b" href="sms:'+pick.ph+'">Text '+esc(pick.n.split(" ")[0])+'</a><button class="b" data-inc="gave:'+pick.id+':1">Log a give</button>':"")
+    +'<button class="b '+(dn?"ok":"pri")+'" data-done="'+k+'">'+(dn?"Done ✓":"Mark given")+'</button>';
+}
+
+function renderLive(){
+  document.getElementById("live").innerHTML=LIVE.map(function(l){
+    var dn=!!S.done[l.id];
+    return '<div class="card lg live'+(dn?" done":"")+'"><div class="nm">'+esc(l.n)+'</div>'
+      +'<div class="meta">'+esc(l.due)+'</div><div class="note">'+esc(l.d)+'</div>'
+      +'<div class="btns"><a class="b" href="sms:'+l.ph+'">Text</a><a class="b" href="tel:'+l.ph+'">Call</a>'
+      +'<button class="b '+(dn?"ok":"pri")+'" data-done="'+l.id+'">'+(dn?"Closed ✓":"Mark closed")+'</button></div></div>';
+  }).join("");
+}
+
+function renderWeekly(){
+  var wk=weekKey();
+  document.getElementById("weekly").innerHTML=WEEKLY.map(function(w){
+    var k=w.id+"-"+wk,dn=!!S.done[k];
+    return '<div class="card lg'+(dn?" done":"")+'"><div class="nm">'+esc(w.n)+'</div><div class="note">'+esc(w.d)+'</div>'
+      +'<div class="btns"><button class="b '+(dn?"ok":"pri")+'" data-done="'+k+'">'+(dn?"Done ✓":"Mark done")+'</button></div></div>';
+  }).join("");
+}
+
+var CF="all";
+function renderRoster(){
+  var all=ranked();
+  var rows=all.filter(function(p){
+    if(CF==="all")return true;
+    if(CF==="room")return !!p.room;
+    if(CF==="nolang")return !!p.nolang;
+    if(CF==="stale")return days(p)>=60;
+    if(CF==="unmapped")return !(S.want[p.id]||"").trim();
+    return p.st===CF;
+  });
+  document.getElementById("roster").innerHTML=rows.map(function(p){
+    var i=all.indexOf(p)+1,d=days(p),w=S.want[p.id]||"",gv=S.gave[p.id]||0,dn=hit(p.id);
+    var sm=[];if(p.room)sm.push(p.room);if(p.flag)sm.push(p.flag);if(p.nolang)sm.push("Needs a story");
+    return '<tr><td class="rk">'+i+'</td>'
+      +'<td class="n">'+esc(p.n)+(sm.length?'<div class="sm">'+esc(sm.join(" · "))+'</div>':"")
+      +'<div class="ev">'+esc(p.ev)+'</div></td>'
+      +'<td><span class="pill p'+p.st+'">'+p.st+'</span></td>'
+      +'<td class="mn'+(d>=60?" old":"")+'">'+d+'d</td>'
+      +'<td><input class="want'+(w?" filled":"")+'" data-want="'+p.id+'" value="'+esc(w)+'" placeholder="ask the reversal, then write it here"></td>'
+      +'<td><div class="ctr"><button data-inc="got:'+p.id+':-1">−</button><b class="big">'+refs(p)+'</b><button data-inc="got:'+p.id+':1">+</button></div></td>'
+      +'<td><div class="ctr"><button data-inc="gave:'+p.id+':-1">−</button><b class="'+(gv?"pos":"")+'">'+gv+'</b><button data-inc="gave:'+p.id+':1">+</button></div></td>'
+      +'<td><button class="b sm '+(dn?"ok":"")+'" data-t="'+p.id+'">'+(dn?"✓":"Log")+'</button></td></tr>';
+  }).join("")||'<tr><td colspan="8" style="color:var(--faint)">Nothing matches that filter.</td></tr>';
+}
+
+var PF="all",PQ="";
+function renderPool(){
+  var promoted=S.promoted||[];
+  var rows=POOL.filter(function(p){
+    if(promoted.indexOf(p.id)>-1)return false;
+    if(PQ){
+      var q=PQ.toLowerCase(), dig=PQ.replace(/\D/g,"");
+      var byName=p.n.toLowerCase().indexOf(q)>-1;
+      var byPhone=dig.length>0 && p.ph.indexOf(dig)>-1;
+      if(!byName && !byPhone)return false;
+    }
+    if(PF==="hot")return p.r>=15;
+    if(PF==="recent"){var d=Math.round((new Date(today()+"T12:00:00")-new Date(p.last+"T12:00:00"))/864e5);return d<=60;}
+    return true;
+  });
+  document.getElementById("pooltbl").innerHTML=rows.map(function(p,i){
+    return '<tr><td class="rk" style="color:var(--faint)">'+(i+1)+'</td>'
+      +'<td class="n">'+esc(p.n)+'<div class="sm">'+fmt(p.ph)+'</div></td>'
+      +'<td class="mn">'+p.last+'</td><td class="mn">'+p.s+'</td><td class="mn" style="color:var(--green)">'+p.r+'</td>'
+      +'<td><div class="btns" style="margin-top:0"><a class="b sm" href="sms:'+p.ph+'">Text</a>'
+      +'<button class="b sm pri" data-promote="'+p.id+'">Sent me one → core</button></div></td></tr>';
+  }).join("")||'<tr><td colspan="6" style="color:var(--faint)">Nothing matches.</td></tr>';
+}
+
+function renderRooms(){
+  document.getElementById("roomlist").innerHTML=ROOMS.map(function(r){
+    var k=r.id+"-"+weekKey(),dn=!!S.done[k];
+    return '<div class="card lg room'+(dn?" done":"")+'"><div class="nm">'+esc(r.n)+'</div>'
+      +'<div class="meta">Via '+esc(r.who)+' · '+esc(r.st)+'</div>'
+      +'<div class="note">'+esc(r.why)+'</div><div class="note"><em>Next: </em>'+esc(r.act)+'</div>'
+      +'<div class="btns"><button class="b '+(dn?"ok":"pri")+'" data-done="'+k+'">'+(dn?"Touched ✓":"Mark touched")+'</button></div></div>';
+  }).join("");
+}
+
+function renderStats(){
+  var t=today(),all=[];
+  Object.keys(S.t).forEach(function(k){all=all.concat(S.t[k]);});
+  var streak=0,cur=new Date();
+  for(var i=0;i<400;i++){
+    var ds=cur.getFullYear()+"-"+String(cur.getMonth()+1).padStart(2,"0")+"-"+String(cur.getDate()).padStart(2,"0");
+    var c=all.filter(function(x){return x===ds;}).length;
+    if(c>=2)streak++;else if(i>0)break;
+    cur.setDate(cur.getDate()-1);
+  }
+  var mon=new Date();mon.setDate(mon.getDate()-((mon.getDay()+6)%7));
+  var mk=mon.getFullYear()+"-"+String(mon.getMonth()+1).padStart(2,"0")+"-"+String(mon.getDate()).padStart(2,"0");
+  var gave=0;Object.keys(S.gave).forEach(function(k){gave+=S.gave[k]||0;});
+  var got=0;CORE.forEach(function(p){got+=refs(p);});
+  document.getElementById("s-streak").textContent=streak;
+  document.getElementById("s-week").textContent=all.filter(function(x){return x>=mk&&x<=t;}).length;
+  document.getElementById("s-refs").textContent=got;
+  document.getElementById("s-gave").textContent=gave;
+  document.getElementById("s-want").textContent=CORE.filter(function(p){return (S.want[p.id]||"").trim();}).length+"/"+CORE.length;
+  document.getElementById("s-stale").textContent=CORE.filter(function(p){return days(p)>=60;}).length;
+
+  var n=CORE.length,c=0;
+  CORE.forEach(function(p){var a=S.t[p.id];if(a&&a.length&&(!S.cyc||a[a.length-1]>=S.cyc))c++;});
+  document.getElementById("c-done").textContent=c;
+  document.getElementById("c-tot").textContent=n;
+  var h="";for(var j=0;j<n;j++)h+='<i class="'+(j<c?"on":"")+'"></i>';
+  document.getElementById("bar").innerHTML=h;
+  if(c>=n){S.cyc=today();save();}
+}
+
+function render(){renderTwo();renderRev();renderGive();renderLive();renderWeekly();renderRoster();renderPool();renderRooms();renderStats();}
+
+document.addEventListener("click",function(e){
+  var b=e.target.closest("button,a");if(!b)return;
+  if(b.dataset.v){
+    document.querySelectorAll(".tabs button").forEach(function(x){x.classList.toggle("on",x===b);});
+    document.querySelectorAll("section.view").forEach(function(v){v.classList.toggle("on",v.id==="v-"+b.dataset.v);});
+    window.scrollTo({top:0,behavior:"smooth"});return;
+  }
+  if(b.dataset.f){CF=b.dataset.f;
+    document.querySelectorAll("#cfilters button").forEach(function(x){x.classList.toggle("on",x===b);});
+    renderRoster();return;}
+  if(b.dataset.pf){PF=b.dataset.pf;
+    b.parentNode.querySelectorAll("button[data-pf]").forEach(function(x){x.classList.toggle("on",x===b);});
+    renderPool();return;}
+  if(b.dataset.promote){
+    var id=b.dataset.promote;
+    if(!S.promoted)S.promoted=[];
+    if(S.promoted.indexOf(id)===-1){
+      S.promoted.push(id);
+      for(var i=0;i<POOL.length;i++)if(POOL[i].id===id){var q=POOL[i];
+        CORE.push({id:q.id,n:q.n,ph:q.ph,refs:1,ev:"Promoted from List 2 after sending you a referral.",
+          last:q.last,nolast:false,st:"C",say:"You popped in my head. How have you been?",
+          room:"",flag:"Promoted",nolang:false,s:q.s,r:q.r});break;}
+      S.got[id]=1;save();render();
+    }
+    return;
+  }
+  if(b.dataset.t){var i2=b.dataset.t;if(!S.t[i2])S.t[i2]=[];if(!hit(i2))S.t[i2].push(today());save();render();return;}
+  if(b.dataset.done){S.done[b.dataset.done]=!S.done[b.dataset.done];save();render();return;}
+  if(b.dataset.inc){var a=b.dataset.inc.split(":"),m=a[0],id3=a[1],n3=parseInt(a[2],10);
+    if(m==="got"&&S.got[id3]===undefined){var pp=byId(id3);S.got[id3]=pp?pp.refs:0;}
+    S[m][id3]=Math.max(0,(S[m][id3]||0)+n3);save();render();return;}
+  if(b.dataset.copy){cp(b.dataset.copy,b);return;}
+  if(b.classList.contains("cp")){var qq=b.parentNode.querySelector("q");if(qq)cp(qq.textContent.trim(),b);return;}
+  if(b.id==="reset"){S={t:{},want:{},gave:{},got:{},done:{},pick:null,cyc:null,promoted:[]};
+    localStorage.removeItem(KEY);location.reload();return;}
+});
+
+document.addEventListener("input",function(e){
+  var i=e.target;
+  if(i.id==="psearch"){PQ=i.value.trim();renderPool();return;}
+  if(!i.dataset||!i.dataset.want)return;
+  S.want[i.dataset.want]=i.value;save();
+  i.classList.toggle("filled",!!i.value.trim());
+  renderGive();renderStats();
+});
+
+function cp(t,b){navigator.clipboard.writeText(t).then(function(){
+  var o=b.textContent;b.textContent="Copied";b.classList.add("ok");
+  setTimeout(function(){b.textContent=o;b.classList.remove("ok");},1300);});}
+
+render();
+})();
+</script>
+</body>
+</html>

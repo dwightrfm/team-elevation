@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>RFM SpeedZone 2026 — SMD Toolkit</title>
+<style>
+:root{
+  /* Command Center palette — navy / Transamerica red */
+  --black:#10182B; --panel:#1B2A4A; --panel2:#243456; --line:#2D4066;
+  --nav-bg:#16223C;
+  --red:#E5421F; --red-dk:#B8330F; --silver:#EEF1F6; --ink:#10182B;
+  --paper:#FFFFFF; --paper-line:#DCE1E9; --sub:#9FB0CC; --ok:#22C55E; --warn:#D9822B;
+  --tint:#FFF3EF; --tint-hi:#FFE7DF;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--black);color:var(--silver);font-family:var(--sans);line-height:1.45;-webkit-font-smoothing:antialiased}
+
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:50;background:linear-gradient(180deg,#10182B 0%,#1B2A4A 100%);border-bottom:3px solid var(--red)}
+.hbar{max-width:1180px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.brand .rfm{font-size:22px;font-weight:900;letter-spacing:.06em;color:#fff}
+.brand .sz{font-size:22px;font-weight:900;font-style:italic;letter-spacing:-.01em;color:var(--red);text-transform:uppercase}
+.brand .yr{font-size:12px;font-weight:700;letter-spacing:.22em;color:var(--sub)}
+.count{display:flex;gap:8px;align-items:center;background:var(--black);border:1px solid var(--line);border-left:3px solid var(--red);border-radius:4px;padding:7px 13px}
+.count b{font-size:24px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;line-height:1}
+.count span{font-size:9.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--sub);line-height:1.3}
+.saved{font-size:11px;color:var(--sub);min-width:112px;text-align:right}
+.saved.on{color:var(--ok)}
+.tools{display:flex;gap:7px}
+.util{background:var(--panel2);border:1px solid var(--line);color:var(--silver);font-size:11.5px;font-weight:600;padding:7px 11px;border-radius:4px;cursor:pointer}
+.util:hover{border-color:var(--red);color:#fff}
+
+/* ---------- nav ---------- */
+nav{background:var(--nav-bg);border-bottom:1px solid var(--line);position:sticky;top:63px;z-index:49}
+.nav-in{max-width:1180px;margin:0 auto;padding:0 12px;display:flex;gap:2px;overflow-x:auto}
+nav button{background:none;border:none;border-bottom:3px solid transparent;color:var(--sub);font-size:12.5px;font-weight:700;padding:12px 13px;cursor:pointer;white-space:nowrap;font-family:inherit}
+nav button:hover{color:var(--silver)}
+nav button.active{color:#fff;border-bottom-color:var(--red)}
+nav button i{font-style:normal;color:var(--red);margin-right:6px;font-size:11px}
+
+/* ---------- layout ---------- */
+main{max-width:1180px;margin:0 auto;padding:26px 20px 90px}
+.panel{display:none}
+.panel.active{display:block}
+h2.ttl{font-size:clamp(21px,3.4vw,30px);font-weight:900;color:#fff;margin:0 0 4px;letter-spacing:-.01em}
+p.lede{color:var(--sub);font-size:13.5px;margin:0 0 22px;max-width:75ch}
+h3{font-size:15px;font-weight:800;color:#fff;margin:26px 0 10px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+h4{font-size:13px;font-weight:800;color:var(--red);margin:18px 0 7px;letter-spacing:.02em}
+
+/* paper surface for fillable sheets */
+.paper{background:var(--paper);color:var(--ink);border-radius:6px;padding:26px;margin-top:16px;overflow-x:auto}
+.paper h3{color:var(--ink);border-bottom-color:var(--paper-line)}
+.paper h4{color:var(--red-dk)}
+.paper .sub{color:#5B6672;font-size:12.5px}
+
+/* inputs */
+input[type=text],input[type=date],input[type=number],textarea,select{
+  font-family:inherit;font-size:13.5px;color:var(--ink);background:#fff;border:1px solid var(--paper-line);
+  border-radius:3px;padding:6px 8px;width:100%}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--red);outline-offset:-1px;border-color:var(--red)}
+textarea{resize:vertical;min-height:78px;line-height:1.5}
+.blank{display:inline-block;width:150px;border:none;border-bottom:1.5px solid var(--red);border-radius:0;padding:1px 4px;
+  font-weight:700;background:var(--tint);text-align:center}
+.blank.sm{width:88px}.blank.lg{width:215px}
+.blank:focus{outline:none;background:var(--tint-hi)}
+.fieldgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px;margin-top:12px}
+label.f{display:block;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6A737E;margin-bottom:4px}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{background:#F2F5F8;text-align:left;font-size:9.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+  color:#5B6672;padding:8px 6px;border:1px solid var(--paper-line);white-space:nowrap}
+td{border:1px solid var(--paper-line);padding:0}
+td input{border:none;border-radius:0;padding:7px 6px}
+td.rn{background:#F7F9FB;text-align:center;font-weight:800;color:#8A929C;width:34px;font-size:11px;padding:7px 2px}
+tr:nth-child(even) td.rn{background:#F2F5F8}
+
+/* ---------- smile & dial ---------- */
+.sd-wrap{overflow-x:auto}
+.sd-row{display:flex;align-items:center;gap:9px;margin-bottom:5px}
+.sd-hr{width:26px;text-align:right;font-weight:900;font-size:15px;color:var(--ink);flex:none}
+.sd-blocks{display:flex;gap:7px}
+.sd-block{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;border:1px solid #C3CAD2;padding:4px;border-radius:3px}
+.dot{width:19px;height:19px;border-radius:50%;border:1.5px solid #B4BCC5;background:#fff;cursor:pointer;position:relative;
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:transparent;transition:none}
+.dot:hover{border-color:var(--red)}
+.dot.s1{background:var(--ink);border-color:var(--ink)}
+.dot.s2{background:var(--ink);border-color:var(--ink)}
+.dot.s2::after{content:"";position:absolute;width:2px;height:26px;background:var(--red);transform:rotate(42deg)}
+.dot.s3{background:#fff;border-color:var(--red);color:var(--red)}
+.dot.s3::before{content:"✕"}
+.legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;padding-top:13px;border-top:2px solid var(--ink);font-size:12.5px;color:var(--ink)}
+.legend div{display:flex;align-items:center;gap:7px}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:11px;margin-top:16px}
+.tbox{background:#F2F5F8;border:1px solid var(--paper-line);border-left:3px solid var(--red);border-radius:4px;padding:11px 13px}
+.tbox b{display:block;font-size:27px;font-weight:900;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+.tbox span{font-size:9.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6A737E;display:block;margin-top:5px}
+
+/* ---------- org chart ---------- */
+.org{display:flex;gap:26px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.smd-node{display:flex;flex-direction:column;align-items:center;gap:6px;flex:none}
+.c{border:2px solid var(--ink);border-radius:50%;background:#fff;text-align:center;font-weight:700;font-size:11px;
+  color:var(--ink);padding:0}
+.c.big{width:96px;height:96px;font-size:14px;font-weight:900;border-color:var(--red);border-width:3px}
+.c.mid{width:60px;height:60px;font-size:11.5px;border-color:var(--red-dk)}
+.c.sm{width:42px;height:42px;font-size:10px}
+.leg{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+.leg-lbl{writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;font-weight:900;color:var(--red);letter-spacing:.08em}
+.branches{display:flex;flex-direction:column;gap:7px}
+.branch{display:flex;gap:7px;align-items:center}
+.legs{flex:1;min-width:330px}
+.pairs{display:flex;flex-direction:column;gap:12px}
+.pair{display:flex;gap:7px}
+.lic{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:10px}
+.lic .slot{display:flex;align-items:center;gap:5px}
+.lic .num{width:20px;height:20px;border:1.5px solid var(--ink);border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:10px;font-weight:800;flex:none}
+.lic input{border:none;border-bottom:1.5px solid var(--ink);border-radius:0}
+.keybox{display:flex;gap:22px;flex-wrap:wrap;font-size:12.5px;color:var(--ink);margin-top:12px}
+.keybox b{display:inline-flex;width:22px;height:22px;border:1.5px solid var(--ink);border-radius:50%;
+  align-items:center;justify-content:center;font-size:11px;margin-right:5px}
+
+/* ---------- scripts ---------- */
+.script{background:#fff;color:var(--ink);border-radius:6px;padding:24px 26px;margin-top:14px;font-size:14px;line-height:1.85}
+.script p{margin:0 0 14px}
+.script .who{font-weight:900;color:var(--red-dk);display:block;margin-top:16px}
+.script .resp{font-style:italic;color:#4A535E;padding-left:16px;border-left:2px solid var(--paper-line)}
+.script .note{font-size:12.5px;color:#5B6672;background:#F5F7F9;padding:10px 13px;border-radius:4px;font-style:italic}
+.copyrow{display:flex;gap:9px;align-items:center;margin-top:14px;flex-wrap:wrap}
+button.go{background:var(--red);border:none;color:#fff;font-size:12.5px;font-weight:800;padding:9px 16px;border-radius:4px;
+  cursor:pointer;font-family:inherit;letter-spacing:.03em}
+button.go:hover{background:var(--red-dk)}
+button.gh{background:transparent;border:1px solid var(--paper-line);color:#5B6672;font-size:12px;font-weight:700;
+  padding:8px 13px;border-radius:4px;cursor:pointer;font-family:inherit}
+.copied{font-size:12px;color:var(--ok);font-weight:700}
+
+/* ---------- reference ---------- */
+.ref{background:#fff;color:var(--ink);border-radius:6px;padding:24px 26px;margin-top:14px;font-size:13.5px;line-height:1.7}
+.ref ul{margin:8px 0 16px;padding-left:20px}
+.ref li{margin:5px 0}
+.ref ol{margin:8px 0 16px;padding-left:22px}
+.ref .callout{background:var(--tint);border-left:3px solid var(--red);padding:13px 16px;border-radius:0 4px 4px 0;margin:16px 0}
+.ref .callout b{color:var(--red-dk)}
+
+/* ---------- home ---------- */
+.hero{background:linear-gradient(135deg,#1B2A4A 0%,#10182B 60%);border:1px solid var(--line);border-left:4px solid var(--red);
+  border-radius:8px;padding:26px 28px}
+.hero h1{margin:0 0 6px;font-size:clamp(24px,4vw,36px);font-weight:900;color:#fff;letter-spacing:-.015em}
+.hero p{margin:0;color:var(--sub);font-size:14px;max-width:70ch}
+.stat4{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:13px;margin-top:20px}
+.st{background:var(--nav-bg);border:1px solid var(--line);border-radius:6px;padding:15px 17px}
+.st b{display:block;font-size:30px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;line-height:1}
+.st b.r{color:var(--red)}
+.st span{display:block;font-size:9.5px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--sub);margin-top:6px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:13px;margin-top:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:17px 19px;cursor:pointer;text-align:left;
+  font-family:inherit;color:inherit}
+.card:hover{border-color:var(--red);background:var(--panel2)}
+.card b{display:block;font-size:14px;font-weight:800;color:#fff;margin-bottom:5px}
+.card span{font-size:12px;color:var(--sub);line-height:1.5}
+.card i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--red);display:block;margin-bottom:7px}
+
+.addrow{margin-top:11px}
+.hint{font-size:11.5px;color:#6A737E;margin-top:9px;font-style:italic}
+.srcnote{font-size:11px;color:var(--sub);margin-top:26px;padding-top:14px;border-top:1px solid var(--line)}
+
+@media print{
+  header,nav,.tools,.addrow,button{display:none!important}
+  body{background:#fff;color:#000}
+  main{max-width:none;padding:0}
+  .panel{display:none!important}
+  .panel.active{display:block!important}
+  .paper,.script,.ref{padding:0;border:none}
+  .dot{border-color:#999!important}
+}
+@media(max-width:640px){
+  .hbar{gap:11px}.brand .rfm,.brand .sz{font-size:18px}
+  .paper{padding:15px}.script,.ref{padding:17px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hbar">
+    <div class="brand"><span class="rfm">RFM</span><span class="sz">SpeedZone</span><span class="yr">2026</span></div>
+    <div class="count"><b id="dleft">—</b><span>Days to<br>Sept 30</span></div>
+    <div class="saved" id="saved">Autosave on</div>
+    <div class="tools">
+      <a class="util" href="../" style="text-decoration:none;display:inline-flex;align-items:center">← Hub</a>
+      <button class="util" onclick="window.print()">Print</button>
+      <button class="util" onclick="exportJSON()">Export</button>
+      <button class="util" onclick="document.getElementById('imp').click()">Import</button>
+      <button class="util" onclick="resetAll()">Reset</button>
+      <input type="file" id="imp" accept="application/json" style="display:none" onchange="importJSON(event)">
+    </div>
+  </div>
+</header>
+
+<nav><div class="nav-in" id="nav"></div></nav>
+
+<main>
+
+<!-- ================= HOME ================= -->
+<section class="panel active" id="p-home">
+  <div class="hero">
+    <h1>The SMD Run — every tool in one place</h1>
+    <p>The full RFM SpeedZone 2026 packet, made fillable. Everything saves to this browser automatically. Deadline is <strong style="color:#fff">September 30, 2026</strong>.</p>
+    <div class="stat4">
+      <div class="st"><b id="h-days">—</b><span>Days Remaining</span></div>
+      <div class="st"><b class="r" id="h-dials">0</b><span>Dials Logged</span></div>
+      <div class="st"><b class="r" id="h-appts">0</b><span>Appts Set</span></div>
+      <div class="st"><b id="h-lic">0<small style="font-size:16px;color:var(--sub)"> / 10</small></b><span>Life Licensed</span></div>
+    </div>
+  </div>
+
+  <h3>Daily &amp; weekly standard</h3>
+  <div class="cards">
+    <div class="card"><i>DAILY FLOOR</i><b>30+ DMs · 1 new name</b><span>No zero days. At least one new name and number every single day, referral or Instagram.</span></div>
+    <div class="card"><i>WEEKLY</i><b>4–5 Step 1s booked · 3 held</b><span>180 cold DMs, 60+ follow-up touches, 8 new numbers, 1 new recruit couple.</span></div>
+    <div class="card"><i>THE 48-HOUR RULE</i><b>No number sits 2 days</b><span>A phone number is not a KPI. A booked Step 1 is.</span></div>
+    <div class="card"><i>GX1 — MONTHLY MINIMUM</i><b>3 recruits + 15,000 pts</b><span>Both legs required. Points only count when the policy issues.</span></div>
+  </div>
+
+  <h3>The tools</h3>
+  <div class="cards" id="toolcards"></div>
+
+  <p class="srcnote">Source: RFM SpeedZone Packet 2026 (11 pages), converted to a fillable web app. Internal use only. Data lives in this browser only — use <strong>Export</strong> to back it up or move it to another device.</p>
+</section>
+
+<!-- ================= 3x4 ================= -->
+<section class="panel" id="p-org">
+  <h2 class="ttl">SMD Promotion = 3×4</h2>
+  <p class="lede">Three legs, four wide. Fill in real names as you build. <strong>C</strong> = Client, <strong>L</strong> = Licensed — write the letter next to the name in each circle.</p>
+  <div class="paper">
+    <div class="fieldgrid" style="max-width:340px">
+      <div><label class="f">Date</label><input type="date" data-k="org.date"></div>
+    </div>
+    <div class="org" style="margin-top:22px">
+      <div class="smd-node">
+        <input class="c big" data-k="org.smd" placeholder="SMD">
+        <div style="font-size:11px;font-weight:900;color:var(--red);letter-spacing:.1em">SMD</div>
+      </div>
+      <div class="pairs" id="orgpairs"></div>
+      <div class="legs" id="orglegs"></div>
+    </div>
+
+    <h3 style="margin-top:30px">Life Licensed</h3>
+    <div class="lic" id="liclist"></div>
+
+    <h3 style="margin-top:26px">Base</h3>
+    <div class="fieldgrid" style="max-width:520px">
+      <div><label class="f">Butts in seats</label><input type="number" data-k="org.seats" oninput="save()"></div>
+      <div><label class="f"># of field trainers</label><input type="number" data-k="org.trainers" oninput="save()"></div>
+    </div>
+    <div class="keybox"><div><b>C</b> = Client</div><div><b>L</b> = Licensed</div></div>
+  </div>
+</section>
+
+<!-- ================= SMILE & DIAL ================= -->
+<section class="panel" id="p-dial">
+  <h2 class="ttl">Smile and Dial</h2>
+  <p class="lede">Click a circle to cycle it: <strong>empty → dial → contact → appointment</strong>. Click again to clear. 40 slots per hour, 8am through 7pm.</p>
+  <div class="paper">
+    <div class="fieldgrid" style="max-width:480px;margin-bottom:20px">
+      <div><label class="f">Name</label><input type="text" data-k="dial.name"></div>
+      <div><label class="f">Date</label><input type="date" data-k="dial.date"></div>
+    </div>
+    <div class="sd-wrap" id="sdgrid"></div>
+    <div class="legend">
+      <div><span class="dot s1" style="cursor:default"></span> means Dial</div>
+      <div><span class="dot s2" style="cursor:default"></span> means Contact</div>
+      <div><span class="dot s3" style="cursor:default"></span> means Appointment</div>
+    </div>
+    <div class="tally">
+      <div class="tbox"><b id="t-dials">0</b><span>Dials</span></div>
+      <div class="tbox"><b id="t-cont">0</b><span>Contacts</span></div>
+      <div class="tbox"><b id="t-appt">0</b><span>Appointments</span></div>
+      <div class="tbox"><b id="t-dc">—</b><span>Dials / Contact</span></div>
+      <div class="tbox"><b id="t-da">—</b><span>Dials / Appt</span></div>
+    </div>
+    <p class="hint">A circle marked Contact or Appointment still counts as a Dial — you had to dial to get there.</p>
+    <div class="copyrow"><button class="gh" onclick="clearDial()">Clear this sheet</button></div>
+  </div>
+</section>
+
+<!-- ================= 50-5 ================= -->
+<section class="panel" id="p-505">
+  <h2 class="ttl">50-5 Call Sheet</h2>
+  <p class="lede">Twenty-five calls logged, five new prospects captured. Run it every phone zone.</p>
+  <div class="paper">
+    <div class="fieldgrid" style="max-width:250px;margin-bottom:18px">
+      <div><label class="f">Date</label><input type="date" data-k="f505.date"></div>
+    </div>
+    <table><thead><tr><th></th><th style="width:13%">Time</th><th style="width:27%">Name</th><th style="width:22%">Phone #</th><th>Results</th></tr></thead>
+      <tbody id="tb505"></tbody></table>
+    <div class="tally" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">
+      <div class="tbox"><b id="t505">0</b><span>Calls Logged</span></div>
+      <div class="tbox"><b id="t505n">0</b><span>New Prospects</span></div>
+    </div>
+    <h3 style="margin-top:28px">New Prospects</h3>
+    <table><thead><tr><th></th><th style="width:13%">Time</th><th style="width:27%">Name</th><th style="width:22%">Phone #</th><th>Notes</th></tr></thead>
+      <tbody id="tb505n"></tbody></table>
+  </div>
+</section>
+
+<!-- ================= FAST START ================= -->
+<section class="panel" id="p-fst">
+  <h2 class="ttl">Fast Start Tracker</h2>
+  <p class="lede">Every new recruit, tracked from start date through licensing. Field Training is three sits — check them off as they happen.</p>
+  <div class="paper">
+    <div class="fieldgrid" style="max-width:250px;margin-bottom:18px">
+      <div><label class="f">Month</label><input type="text" data-k="fst.month" placeholder="July 2026"></div>
+    </div>
+    <table style="min-width:1080px"><thead><tr>
+      <th></th><th style="width:88px">Start Date</th><th style="width:130px">Name</th><th style="width:106px">Contact #</th>
+      <th style="width:72px">Code #</th><th style="width:126px">Inviter/Trainer</th><th style="width:52px">Biz Plan</th>
+      <th style="width:60px">Calls Made</th><th style="width:52px">Client</th><th style="width:86px">Field Training</th>
+      <th style="width:82px">Lic. Test Date</th><th style="width:44px">M/T</th><th style="width:60px">FS School</th>
+      <th style="width:52px">Top 25</th><th>Notes</th>
+    </tr></thead><tbody id="tbfst"></tbody></table>
+    <div class="addrow"><button class="gh" onclick="addFst()">+ Add row</button></div>
+  </div>
+</section>
+
+<!-- ================= BUSINESS PLAN ================= -->
+<section class="panel" id="p-bp">
+  <h2 class="ttl">Business Plan</h2>
+  <p class="lede">Nine sections. Write it once, read it every morning and every night.</p>
+  <div class="paper">
+    <h4>1) Introduction</h4>
+    <p class="sub">Talk about your business and how you feel at this point. (Excited)</p>
+    <textarea data-k="bp.intro"></textarea>
+
+    <h4>2) Affirmations</h4>
+    <p class="sub">Positive self-talk, usually about the person I am becoming.</p>
+    <textarea data-k="bp.aff"></textarea>
+
+    <h4>3) Top 10 reasons you joined RFM (non-monetary)</h4>
+    <p class="sub">Retire early, retire parents, help families, kids' schooling, legacy.</p>
+    <div id="bpreasons"></div>
+
+    <h4>4) Goals and Action Items</h4>
+    <div class="fieldgrid">
+      <div><label class="f">When am I going to be a field trainer</label><input type="text" data-k="bp.ft"></div>
+      <div><label class="f">When am I going to be SMD</label><input type="text" data-k="bp.smd" placeholder="September 30, 2026"></div>
+      <div><label class="f">Desired monthly income</label><input type="text" data-k="bp.income"></div>
+      <div><label class="f">Monthly production / revenue</label><input type="text" data-k="bp.prod"></div>
+    </div>
+    <label class="f" style="margin-top:14px">Short and long term goals</label>
+    <textarea data-k="bp.goals"></textarea>
+
+    <div class="callout" style="background:var(--tint);border-left:3px solid var(--red);padding:15px 18px;border-radius:0 4px 4px 0;margin:20px 0">
+      <h4 style="margin-top:0">Income replacement calculator</h4>
+      <p class="sub" style="margin-bottom:12px">Packet example: $5,000 current income · 3 recruits and 3 sales = 15k pts (avg 5k pts/sale) @ 35% = $5,250.</p>
+      <div class="fieldgrid">
+        <div><label class="f">Current F/T income ($/mo)</label><input type="number" data-k="bp.cur" oninput="calcBp()" placeholder="5000"></div>
+        <div><label class="f"># of sales</label><input type="number" data-k="bp.sales" oninput="calcBp()" placeholder="3"></div>
+        <div><label class="f">Avg points per sale</label><input type="number" data-k="bp.pps" oninput="calcBp()" placeholder="5000"></div>
+        <div><label class="f">Contract %</label><input type="number" data-k="bp.pct" oninput="calcBp()" placeholder="35"></div>
+      </div>
+      <div class="tally" style="margin-top:14px">
+        <div class="tbox"><b id="bp-pts">—</b><span>Total Points</span></div>
+        <div class="tbox"><b id="bp-earn">—</b><span>Projected Income</span></div>
+        <div class="tbox"><b id="bp-gap">—</b><span>vs Current</span></div>
+      </div>
+      <div class="fieldgrid" style="margin-top:12px">
+        <div><label class="f">How many recruits?</label><input type="text" data-k="bp.recq"></div>
+        <div><label class="f">When am I going full time?</label><input type="text" data-k="bp.ftdate"></div>
+      </div>
+    </div>
+
+    <h4>5) Personal business expansion goals</h4>
+    <div class="fieldgrid">
+      <div><label class="f"># new contacts each week</label><input type="text" data-k="bp.e1"></div>
+      <div><label class="f"># new prospects / appts / clients each week</label><input type="text" data-k="bp.e2"></div>
+      <div><label class="f"># business partners each week</label><input type="text" data-k="bp.e3"></div>
+      <div><label class="f"># business partners each month</label><input type="text" data-k="bp.e4"></div>
+      <div><label class="f">When will I get 10 in a month?</label><input type="text" data-k="bp.e5"></div>
+    </div>
+
+    <h4>6) Personal production and agency production goals</h4>
+    <textarea data-k="bp.prodgoals"></textarea>
+
+    <h4>7) What I need to give up to achieve these goals (Sacrifices)</h4>
+    <p class="sub">Free time, TV and time wasters, working longer hours, going out time, negative associations.</p>
+    <textarea data-k="bp.sac"></textarea>
+
+    <h4>8) What I need to improve in myself</h4>
+    <div class="fieldgrid" style="grid-template-columns:1fr 1fr">
+      <div><label class="f">Five strong points</label><textarea data-k="bp.strong"></textarea></div>
+      <div><label class="f">Five weaknesses</label><textarea data-k="bp.weak"></textarea></div>
+    </div>
+
+    <h4>9) Closing</h4>
+    <textarea data-k="bp.close"></textarea>
+  </div>
+</section>
+
+<!-- ================= SCRIPTS ================= -->
+<section class="panel" id="p-scripts">
+  <h2 class="ttl">Scripts</h2>
+  <p class="lede">Fill the blanks once — they persist. Hit <strong>Copy filled script</strong> and it comes out clean, no underscores.</p>
+
+  <div class="paper" style="padding:18px 22px">
+    <h4 style="margin-top:0">My defaults — fill these once, they flow into every script</h4>
+    <div class="fieldgrid">
+      <div><label class="f">My name</label><input type="text" data-k="sc.me" oninput="save()"></div>
+      <div><label class="f">My firm</label><input type="text" data-k="sc.firm" value="Revolution Financial Management" oninput="save()"></div>
+    </div>
+  </div>
+
+  <h3>Warm Market Script — calling a teammate's list</h3>
+  <div class="script" id="sc1">
+    <p>Hi <input class="blank" data-k="s1.prospect" placeholder="prospect">, thanks for picking up a call from a number you don't recognize. My name is <input class="blank" data-k="sc.me2" placeholder="my name"> and I was referred to you by <input class="blank" data-k="s1.ref" placeholder="trainee">.</p>
+    <p class="note">Say something personal about the prospect that the trainee told you, so they know you are not a cold call. For example: "She told me you were best friends since high school."</p>
+    <p><input class="blank lg" data-k="s1.personal" placeholder="personal detail"></p>
+    <p>The reason for my call is <input class="blank" data-k="s1.trainee" placeholder="trainee"> is making a move into entrepreneurship, and I know they haven't really shared much with you yet. They'd love the opportunity to share with you WHAT they're doing, WHY they are so excited, and WHO they are looking for in terms of referrals. They wanted to know if you had 20–30 min to hop on a Zoom call?</p>
+    <p><strong>Would you be open to that?</strong></p>
+    <p>Great, thanks! What is better for you <input class="blank sm" data-k="s1.opt1" placeholder="Wed"> or <input class="blank sm" data-k="s1.opt2" placeholder="Fri">?</p>
+    <p>OK great, I'll see you on <input class="blank" data-k="s1.day" placeholder="day"> at <input class="blank sm" data-k="s1.time" placeholder="time">.</p>
+    <p>What's your email address so I can send you the Zoom link?</p>
+    <span class="who">If they ask — "What is it?"</span>
+    <p>It's about 20–30 minutes or so, and we'll hop on a quick Zoom and show you who we are and what we do. Then maybe in the future, if you know someone who needs what we do, you can give <input class="blank" data-k="s1.trainee2" placeholder="trainee"> a referral. If nothing else, they'll get training and the word of mouth out there.</p>
+    <div class="copyrow"><button class="go" onclick="copyScript('sc1',this)">Copy filled script</button><span class="copied" style="display:none">Copied</span></div>
+  </div>
+
+  <h3>3 Good Qualities Script</h3>
+  <div class="script" id="sc2">
+    <span class="who">Trainer</span>
+    <p>Hello <input class="blank" data-k="s2.prospect" placeholder="prospect">. Hi, this is <input class="blank" data-k="sc.me3" placeholder="my name">. I'm a trainer over at <input class="blank lg" data-k="sc.firm2" placeholder="Revolution Financial Management">. I was actually referred to you by <input class="blank" data-k="s2.ref" placeholder="referrer">. I was speaking with <input class="blank" data-k="s2.ref2" placeholder="referrer"> and told her/him we are expanding and I was looking for some sharp people, and I was describing what I was looking for and she/he mentioned you. He/she said some great things about you. She/he said you were <input class="blank sm" data-k="s2.q1" placeholder="quality 1">, <input class="blank sm" data-k="s2.q2" placeholder="quality 2">, and great with <input class="blank sm" data-k="s2.q3" placeholder="quality 3">.</p>
+    <p>I don't know too much about you — what exactly do you do?</p>
+    <p class="resp">Prospect: I am a ______. I do ______.</p>
+    <span class="who">Trainer</span>
+    <p>Again, I didn't know much about your background, but from what <input class="blank" data-k="s2.ref3" placeholder="referrer"> said about you I thought it made sense I give you a call. I would love to introduce our firm to you, to show you who we are, what we do, and give you a chance to introduce yourself to us and see if there is a fit. What's your schedule over there?</p>
+    <p class="resp">Prospect: I usually work 8–5, Monday through Friday.</p>
+    <span class="who">Trainer</span>
+    <p>(BPM) Sounds like evenings and weekends would probably work best for you, right?<br>(1 on 1) What's best for you to meet over Zoom — morning or afternoon?</p>
+    <p class="resp">Prospect: I probably could meet Tuesday.</p>
+    <span class="who">Trainer</span>
+    <p>Awesome, what time is best? <input class="blank sm" data-k="s2.t1" placeholder="time"> o'clock or <input class="blank sm" data-k="s2.t2" placeholder="time"> o'clock?</p>
+    <p>Great, what is the best email address to send the Zoom link?</p>
+    <p>Alright, I look forward to seeing you on <input class="blank" data-k="s2.day" placeholder="day">.</p>
+    <div class="copyrow"><button class="go" onclick="copyScript('sc2',this)">Copy filled script</button><span class="copied" style="display:none">Copied</span></div>
+  </div>
+
+  <h3>Calling Referrals — Client Prospects</h3>
+  <div class="script" id="sc3">
+    <p>Hi <input class="blank" data-k="s3.prospect" placeholder="prospect">, this is <input class="blank" data-k="sc.me4" placeholder="my name"> calling. I had your name and number passed along from <input class="blank" data-k="s3.ref" placeholder="referrer">. Did he/she let you know I was going to be calling?</p>
+    <p class="resp">"Yes" — OK, great! &nbsp;·&nbsp; "No" — OK, no problem, I'm sure he/she was just busy.</p>
+    <p>I sat down with <input class="blank sm" data-k="s3.c1" placeholder="name"> &amp; <input class="blank sm" data-k="s3.c2" placeholder="name">, showed them some great ways to save money, minimize taxes, and just get in better financial shape. They mentioned to me they wanted you to see what we do, and I promised them I'd give you a call. So, I just wanted to find a time to get together and show you what we do.</p>
+    <p>What works better for you, <input class="blank sm" data-k="s3.o1" placeholder="option"> or <input class="blank sm" data-k="s3.o2" placeholder="option">?</p>
+    <div class="copyrow"><button class="go" onclick="copyScript('sc3',this)">Copy filled script</button><span class="copied" style="display:none">Copied</span></div>
+  </div>
+
+  <h3>Calling Referrals — Business Partner Prospects</h3>
+  <div class="script" id="sc4">
+    <p>Hey <input class="blank" data-k="s4.prospect" placeholder="prospect">, this is <input class="blank" data-k="sc.me5" placeholder="my name"> calling. We haven't had a chance to meet, but <input class="blank" data-k="s4.ref" placeholder="trainee/client"> passed your number along to me. He/she told me you're <input class="blank sm" data-k="s4.q1" placeholder="quality 1">, <input class="blank sm" data-k="s4.q2" placeholder="quality 2"> and <input class="blank sm" data-k="s4.q3" placeholder="quality 3">. Is that true?</p>
+    <p class="resp">"Sure, I guess"</p>
+    <p>Great, I'm expanding my business and looking for some good people. I just wanted to know — are you locked into what you do, or do you keep your options open?</p>
+    <p class="resp">"Options open"</p>
+    <p class="note">Then run the 3 Good Qualities script above for the full conversation.</p>
+    <div class="copyrow"><button class="go" onclick="copyScript('sc4',this)">Copy filled script</button><span class="copied" style="display:none">Copied</span></div>
+  </div>
+</section>
+
+<!-- ================= REFERRALS ================= -->
+<section class="panel" id="p-ref">
+  <h2 class="ttl">Max Out Referrals</h2>
+  <p class="lede">You will not survive in business without a 100% commitment to getting referrals.</p>
+
+  <div class="ref">
+    <div class="callout"><b>THE ASK — ask three different ways, every time.</b></div>
+    <ol>
+      <li>Who do you know that could benefit from this type of education or use help financially?</li>
+      <li>Our company is in a huge expansion mode. Who do you know that is good with people, maybe wants to make extra money, or is looking for a career change?</li>
+      <li>What I'd like to do also is build referral outlets for [trainee]. Who do you know that we can give referrals to? Anyone you refer would love you for it — an accountant or bookkeeper, a mortgage broker, someone in sales. We can send referrals to grow their business in hopes they can send referrals back.</li>
+    </ol>
+    <p>If they're having trouble, go over the Memory Jogger and help them think of names.</p>
+
+    <h3>Where referrals come from</h3>
+    <ul>
+      <li>From new business partners</li>
+      <li>Client referrals from your warm market</li>
+      <li>Center of influence (COI) referrals</li>
+    </ul>
+
+    <h3>Running it in the field</h3>
+    <ul>
+      <li>Goal: a minimum of 8–10 client referrals.</li>
+      <li>Trainee and trainer work together to get referrals.</li>
+      <li>Pre-frame the prospect that you'll be asking — don't spring it at the end.</li>
+      <li>Let them know you don't do business on the first appointment. They can relax and learn.</li>
+      <li>Tell them the business is built 100% by referrals, and to be thinking of people who might benefit.</li>
+      <li>Let them know you're looking for quality people for the business.</li>
+      <li>Get a commitment from them to give you referrals.</li>
+      <li>Use the client memory jogger and referral sheets.</li>
+      <li>Teach the prospect to 3-way text the person referred, and to edify you.</li>
+      <li>Call right away while it's still a hot referral. Friendly tone.</li>
+    </ul>
+
+    <h3>Where it lands in the appointment</h3>
+    <p><strong>Beginning of the 1st appointment.</strong> Tonight we'll cover who we are and what we do, but look at it three ways: these concepts might benefit your family, so ask questions; our company is expanding and looking for good people; and maybe you can think of people who could use the help.</p>
+    <p><strong>During the presentation.</strong> "Don't you think more people need to know more about this?" "How many people do you know who are in this type of situation?"</p>
+    <p><strong>End of the presentation.</strong> If I can show you a way to get higher returns, minimize taxes, and guarantee you won't lose money — how many people do you think would want to know that information?</p>
+    <p><strong>After info-gather.</strong> We don't do traditional marketing. We look for introductions to good people from good people like you. So if you could think of 5–10 people that [trainee] and I could get in front of, that would be great. Does that sound fair?</p>
+    <p><strong>If hesitant.</strong> Have you felt comfortable with the way I've handled myself with you? Great — I can guarantee you one thing: I'm going to treat the people you introduce me to with the exact same respect I've treated you. Does that sound good?</p>
+    <p><strong>Start of the 2nd appointment.</strong> Any questions since last time? I just wanted to review what we talked about — coming to our open house and introducing us to about 10 people. We're still good for that?</p>
+    <p><strong>After the plan and paperwork.</strong> Isn't this great? (Highlight the FIN number and long-term projections, the difference in their future.) Then <strong>do THE ASK again</strong> — all three ways.</p>
+
+    <h3>Center of Influence (COI)</h3>
+    <p>A COI is someone who is not part of your business, but likes what you do and gives you referrals. A COI is a leader or a credible person. Develop relationships over time with many COIs.</p>
+    <div class="callout">Touch <b>3 COIs per month</b>, minimum. Every held appointment ends with an ask — even a no. A no to the business still owes referrals.</div>
+  </div>
+
+  <h3>My COI list</h3>
+  <div class="paper">
+    <table><thead><tr><th></th><th style="width:28%">Name</th><th style="width:22%">What they do</th><th style="width:18%">Last touch</th><th>Notes</th></tr></thead>
+    <tbody id="tbcoi"></tbody></table>
+    <div class="addrow"><button class="gh" onclick="addCoi()">+ Add COI</button></div>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ============ config ============ */
+const DEADLINE = new Date('2026-09-30T23:59:59');
+const KEY = 'rfm_speedzone_2026';
+const TABS = [
+  ['home','Run Home','⚑'],
+  ['org','SMD 3×4','◎'],
+  ['dial','Smile &amp; Dial','☺'],
+  ['505','50-5 Call Sheet','☎'],
+  ['fst','Fast Start Tracker','▶'],
+  ['bp','Business Plan','◆'],
+  ['scripts','Scripts','❝'],
+  ['ref','Referrals','↗'],
+];
+const CARDS = [
+  ['org','SMD 3×4','The promotion structure — three legs, four wide. Track names, life licensed, butts in seats.'],
+  ['dial','Smile &amp; Dial','480 clickable slots, 8am–7pm. Live dial/contact/appointment ratios.'],
+  ['505','50-5 Call Sheet','25 calls plus 5 new prospects captured. One sheet per phone zone.'],
+  ['fst','Fast Start Tracker','Every recruit from start date to licensed. Three field-training sits each.'],
+  ['bp','Business Plan','Nine sections, plus a live income-replacement calculator.'],
+  ['scripts','Scripts','Warm market, 3 Good Qualities, and both referral call scripts — fillable.'],
+  ['ref','Referrals','THE ASK three ways, field tips, COI list.'],
+];
+const DIAL_HOURS = [8,9,10,11,12,1,2,3,4,5,6,7];
+const PER_HOUR = 40, BLOCKS = 4, PER_BLOCK = 10;
+
+/* ============ state ============ */
+let S = {};
+try { S = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ S = {}; }
+S.dial = S.dial || {}; S.dial.grid = S.dial.grid || {};
+S.rows = S.rows || {};
+
+let saveTimer=null;
+function save(){
+  document.querySelectorAll('[data-k]').forEach(el=>{
+    const k = el.dataset.k;
+    if(el.type==='checkbox') S[k]=el.checked; else S[k]=el.value;
+  });
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    localStorage.setItem(KEY, JSON.stringify(S));
+    const s=document.getElementById('saved');
+    s.textContent='Saved '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+    s.classList.add('on'); setTimeout(()=>s.classList.remove('on'),1400);
+    refreshStats();
+  },350);
+}
+function restore(){
+  document.querySelectorAll('[data-k]').forEach(el=>{
+    const k=el.dataset.k;
+    if(!(k in S)) return;
+    if(el.type==='checkbox') el.checked=!!S[k]; else if(S[k]!==undefined) el.value=S[k];
+  });
+}
+
+/* ============ nav ============ */
+function buildNav(){
+  const n=document.getElementById('nav');
+  n.innerHTML = TABS.map(([id,label,ic])=>
+    `<button data-t="${id}" onclick="go('${id}')"><i>${ic}</i>${label}</button>`).join('');
+  document.getElementById('toolcards').innerHTML = CARDS.map(([id,t,d])=>
+    `<button class="card" onclick="go('${id}')"><i>OPEN</i><b>${t}</b><span>${d}</span></button>`).join('');
+}
+function go(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.dataset.t===id));
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+/* ============ countdown ============ */
+function countdown(){
+  const d=Math.max(0,Math.ceil((DEADLINE-new Date())/86400000));
+  document.getElementById('dleft').textContent=d;
+  document.getElementById('h-days').textContent=d;
+}
+
+/* ============ org chart ============ */
+function buildOrg(){
+  // two direct pairs hanging off the SMD node
+  document.getElementById('orgpairs').innerHTML = [0,1].map(p=>
+    `<div class="pair">${[0,1].map(i=>`<input class="c sm" data-k="org.p${p}_${i}">`).join('')}</div>`).join('');
+  // three legs: MD, MD, A or SA — each with 3 branches of 4
+  const legs=[['MD','l0'],['MD','l1'],['A or SA','l2']];
+  document.getElementById('orglegs').innerHTML = legs.map(([lbl,key])=>`
+    <div class="leg">
+      <div class="leg-lbl">${lbl}</div>
+      <input class="c mid" data-k="org.${key}">
+      <div class="branches">
+        ${[0,1,2].map(b=>`<div class="branch">${[0,1,2,3].map(i=>
+          `<input class="c sm" data-k="org.${key}_${b}${i}">`).join('')}</div>`).join('')}
+      </div>
+    </div>`).join('');
+  // life licensed 1-10
+  document.getElementById('liclist').innerHTML = Array.from({length:10},(_,i)=>
+    `<div class="slot"><span class="num">${i+1}</span><input type="text" data-k="org.lic${i}" oninput="save()"></div>`).join('');
+}
+
+/* ============ smile & dial ============ */
+function buildDial(){
+  const g=document.getElementById('sdgrid');
+  g.innerHTML = DIAL_HOURS.map((h,hi)=>`
+    <div class="sd-row">
+      <div class="sd-hr">${h}</div>
+      <div class="sd-blocks">
+        ${Array.from({length:BLOCKS},(_,b)=>`<div class="sd-block">${
+          Array.from({length:PER_BLOCK},(_,i)=>{
+            const id=`${hi}_${b}_${i}`; const st=S.dial.grid[id]||0;
+            return `<div class="dot${st?' s'+st:''}" data-d="${id}" onclick="cycle('${id}',this)"></div>`;
+          }).join('')}</div>`).join('')}
+      </div>
+    </div>`).join('');
+  tally();
+}
+function cycle(id,el){
+  const st=((S.dial.grid[id]||0)+1)%4;
+  if(st===0) delete S.dial.grid[id]; else S.dial.grid[id]=st;
+  el.className='dot'+(st?' s'+st:'');
+  save(); tally();
+}
+function tally(){
+  const v=Object.values(S.dial.grid);
+  const d=v.length, c=v.filter(x=>x>=2).length, a=v.filter(x=>x===3).length;
+  document.getElementById('t-dials').textContent=d;
+  document.getElementById('t-cont').textContent=c;
+  document.getElementById('t-appt').textContent=a;
+  document.getElementById('t-dc').textContent = c? (d/c).toFixed(1)+':1' : '—';
+  document.getElementById('t-da').textContent = a? (d/a).toFixed(1)+':1' : '—';
+}
+function clearDial(){
+  if(!confirm('Clear every mark on this Smile and Dial sheet? The name and date stay.')) return;
+  S.dial.grid={}; localStorage.setItem(KEY,JSON.stringify(S)); buildDial(); refreshStats();
+}
+
+/* ============ generic row tables ============ */
+function rowTable(tbodyId, count, cols, prefix){
+  const tb=document.getElementById(tbodyId);
+  tb.innerHTML = Array.from({length:count},(_,r)=>
+    `<tr><td class="rn">${r+1}</td>${cols.map(c=>{
+      if(c.type==='chk3'){
+        return `<td style="text-align:center;padding:5px">${[0,1,2].map(j=>
+          `<input type="checkbox" data-k="${prefix}.${r}.${c.k}${j}" onchange="save()" style="width:auto;margin:0 1px">`).join('')}</td>`;
+      }
+      if(c.type==='chk') return `<td style="text-align:center;padding:5px"><input type="checkbox" data-k="${prefix}.${r}.${c.k}" onchange="save()" style="width:auto"></td>`;
+      return `<td><input type="${c.type||'text'}" data-k="${prefix}.${r}.${c.k}" oninput="save()"></td>`;
+    }).join('')}</tr>`).join('');
+}
+function count505(){
+  let calls=0, np=0;
+  for(let r=0;r<25;r++) if((S[`c505.${r}.name`]||'').trim()) calls++;
+  for(let r=0;r<5;r++) if((S[`n505.${r}.name`]||'').trim()) np++;
+  const a=document.getElementById('t505'), b=document.getElementById('t505n');
+  if(a) a.textContent=calls; if(b) b.textContent=np;
+}
+
+/* ============ fast start ============ */
+const FST_COLS=[
+  {k:'start',type:'date'},{k:'name'},{k:'contact'},{k:'code'},{k:'inviter'},
+  {k:'biz',type:'chk'},{k:'calls'},{k:'client',type:'chk'},{k:'ft',type:'chk3'},
+  {k:'lic',type:'date'},{k:'mt',type:'chk'},{k:'fs',type:'chk'},{k:'top25',type:'chk'},{k:'notes'}
+];
+let fstRows = S.rows.fst || 25;
+function buildFst(){ rowTable('tbfst', fstRows, FST_COLS, 'fst'); restore(); }
+function addFst(){ fstRows+=5; S.rows.fst=fstRows; buildFst(); save(); }
+
+/* ============ COI ============ */
+let coiRows = S.rows.coi || 10;
+function buildCoi(){ rowTable('tbcoi', coiRows, [{k:'name'},{k:'what'},{k:'touch',type:'date'},{k:'notes'}], 'coi'); restore(); }
+function addCoi(){ coiRows+=5; S.rows.coi=coiRows; buildCoi(); save(); }
+
+/* ============ business plan ============ */
+function buildReasons(){
+  document.getElementById('bpreasons').innerHTML = Array.from({length:10},(_,i)=>
+    `<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+      <span style="width:22px;height:22px;border:1.5px solid var(--ink);border-radius:50%;display:flex;align-items:center;
+        justify-content:center;font-size:10px;font-weight:800;flex:none">${i+1}</span>
+      <input type="text" data-k="bp.r${i}" oninput="save()"></div>`).join('');
+}
+function calcBp(){
+  const n=id=>parseFloat(S['bp.'+id]||document.querySelector(`[data-k="bp.${id}"]`)?.value||0)||0;
+  const sales=n('sales'), pps=n('pps'), pct=n('pct'), cur=n('cur');
+  const pts=sales*pps, earn=pts*(pct/100);
+  document.getElementById('bp-pts').textContent = pts? pts.toLocaleString() : '—';
+  document.getElementById('bp-earn').textContent = earn? '$'+Math.round(earn).toLocaleString() : '—';
+  const g=document.getElementById('bp-gap');
+  if(!earn||!cur){ g.textContent='—'; g.style.color=''; return; }
+  const diff=Math.round(earn-cur);
+  g.textContent=(diff>=0?'+$':'−$')+Math.abs(diff).toLocaleString();
+  g.style.color = diff>=0 ? 'var(--ok)' : 'var(--red)';
+}
+
+/* ============ scripts ============ */
+function copyScript(id,btn){
+  const el=document.getElementById(id).cloneNode(true);
+  el.querySelectorAll('.copyrow').forEach(n=>n.remove());
+  el.querySelectorAll('input').forEach(inp=>{
+    const live=document.querySelector(`#${id} [data-k="${inp.dataset.k}"]`);
+    const v=(live&&live.value.trim())||inp.placeholder||'______';
+    inp.replaceWith(document.createTextNode(v));
+  });
+  const txt=el.innerText.replace(/\n{3,}/g,'\n\n').trim();
+  navigator.clipboard.writeText(txt).then(()=>{
+    const tag=btn.parentElement.querySelector('.copied');
+    tag.style.display='inline'; setTimeout(()=>tag.style.display='none',1800);
+  });
+}
+/* mirror the "my name" default into every script that asks for it */
+function mirrorName(){
+  const src=document.querySelector('[data-k="sc.me"]');
+  const firm=document.querySelector('[data-k="sc.firm"]');
+  ['sc.me2','sc.me3','sc.me4','sc.me5'].forEach(k=>{
+    const t=document.querySelector(`[data-k="${k}"]`);
+    if(t && !t.value && src.value){ t.value=src.value; S[k]=src.value; }
+  });
+  const f=document.querySelector('[data-k="sc.firm2"]');
+  if(f && !f.value && firm.value){ f.value=firm.value; S['sc.firm2']=firm.value; }
+}
+
+/* ============ stats ============ */
+function refreshStats(){
+  const v=Object.values(S.dial.grid);
+  document.getElementById('h-dials').textContent=v.length;
+  document.getElementById('h-appts').textContent=v.filter(x=>x===3).length;
+  let lic=0; for(let i=0;i<10;i++) if((S['org.lic'+i]||'').trim()) lic++;
+  document.getElementById('h-lic').innerHTML=lic+'<small style="font-size:16px;color:var(--sub)"> / 10</small>';
+  count505(); calcBp();
+}
+
+/* ============ import / export ============ */
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='speedzone-2026-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function importJSON(e){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(!confirm('Replace everything currently in this toolkit with the imported file?')) return;
+      S=d; S.dial=S.dial||{}; S.dial.grid=S.dial.grid||{}; S.rows=S.rows||{};
+      localStorage.setItem(KEY,JSON.stringify(S)); location.reload();
+    }catch(err){ alert('That file could not be read as SpeedZone data.'); }
+  };
+  r.readAsText(f); e.target.value='';
+}
+function resetAll(){
+  if(!confirm('Erase every entry in this toolkit? This cannot be undone. Export first if you want a copy.')) return;
+  if(!confirm('Last check — really erase everything?')) return;
+  localStorage.removeItem(KEY); location.reload();
+}
+
+/* ============ init ============ */
+buildNav(); countdown(); buildOrg(); buildDial(); buildReasons();
+rowTable('tb505',25,[{k:'time'},{k:'name'},{k:'phone'},{k:'result'}],'c505');
+rowTable('tb505n',5,[{k:'time'},{k:'name'},{k:'phone'},{k:'notes'}],'n505');
+buildFst(); buildCoi();
+restore(); mirrorName(); refreshStats();
+document.addEventListener('input',e=>{ if(e.target.dataset && e.target.dataset.k) save(); });
+setInterval(countdown, 60000);
+</script>
+</body>
+</html>

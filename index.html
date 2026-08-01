@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Team Elevation — Command Center Tools</title>
+<style>
+:root{
+  /* Command Center palette */
+  --navy-dk:#10182B; --navy:#1B2A4A; --navy-lt:#243456; --navy-hi:#2D4066;
+  --red:#E5421F; --red-dk:#B8330F;
+  --light:#EEF1F6; --muted:#9FB0CC; --faint:#6B7D9E;
+  --green:#22C55E; --gold:#D9822B;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--navy-dk);color:var(--light);font-family:var(--sans);
+  line-height:1.5;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(1100px 520px at 12% -8%, rgba(229,66,31,.13), transparent 62%);
+  background-repeat:no-repeat;min-height:100vh;
+}
+a{color:inherit}
+
+header{border-bottom:3px solid var(--red);background:linear-gradient(180deg,var(--navy-dk) 0%,var(--navy) 100%)}
+.hbar{max-width:1080px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.brand .a{font-size:21px;font-weight:900;letter-spacing:.05em;color:#fff}
+.brand .b{font-size:21px;font-weight:900;font-style:italic;letter-spacing:-.01em;color:var(--red);text-transform:uppercase}
+.count{display:flex;gap:9px;align-items:center;background:var(--navy-dk);border:1px solid var(--navy-hi);
+  border-left:3px solid var(--red);border-radius:5px;padding:8px 14px}
+.count b{font-size:23px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;line-height:1}
+.count span{font-size:9.5px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);line-height:1.3}
+
+main{max-width:1080px;margin:0 auto;padding:46px 24px 90px}
+.kick{font:800 10.5px/1 var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--red);margin-bottom:14px}
+h1{margin:0 0 12px;font-size:clamp(28px,5vw,44px);font-weight:900;letter-spacing:-.02em;color:#fff;line-height:1.1}
+h1 span{color:var(--muted)}
+.lede{margin:0;color:var(--muted);font-size:15px;max-width:62ch}
+
+h2{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);
+  margin:52px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--navy-hi)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.card{
+  display:block;text-decoration:none;background:var(--navy);border:1px solid var(--navy-hi);
+  border-left:4px solid var(--red);border-radius:var(--r);padding:24px 26px;
+  transition:transform .16s ease, border-color .16s ease, background .16s ease;
+}
+.card:hover{transform:translateY(-3px);background:var(--navy-lt);border-color:var(--red)}
+.card .tag{font:800 9.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--red);display:block;margin-bottom:11px}
+.card h3{margin:0 0 8px;font-size:19px;font-weight:900;color:#fff;letter-spacing:-.01em}
+.card p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.6}
+.card .meta{margin-top:16px;padding-top:13px;border-top:1px solid var(--navy-hi);display:flex;gap:16px;flex-wrap:wrap}
+.card .meta em{font-style:normal;font:700 11px/1 var(--mono);letter-spacing:.06em;color:var(--faint)}
+.card .go{margin-top:16px;font:800 12px/1 var(--sans);letter-spacing:.05em;color:var(--red)}
+
+.note{margin-top:44px;background:var(--navy);border:1px solid var(--navy-hi);border-left:3px solid var(--gold);
+  border-radius:10px;padding:16px 20px;font-size:13px;color:var(--muted);max-width:74ch}
+.note b{color:var(--light)}
+
+footer{max-width:1080px;margin:0 auto;padding:0 24px 60px;color:var(--faint);font:500 11.5px/1.8 var(--mono)}
+footer hr{border:none;border-top:1px solid var(--navy-hi);margin:0 0 16px}
+
+@media(max-width:640px){ main{padding:32px 18px 70px} .hbar{padding:14px 18px} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hbar">
+    <div class="brand"><span class="a">TEAM</span><span class="b">Elevation</span></div>
+    <div class="count"><b id="dleft">—</b><span>Days to<br>Sept 30</span></div>
+  </div>
+</header>
+
+<main>
+  <div class="kick">Command Center / Tools</div>
+  <h1>Every tool in one place.<br><span>No app to boot. No login.</span></h1>
+  <p class="lede">Standalone tools from the Command Center, published so they work from any device. Everything saves to the browser you open it in. Use Export inside each tool to move your data between machines.</p>
+
+  <h2>Tools</h2>
+  <div class="grid">
+
+    <a class="card" href="referral/">
+      <span class="tag">Relationships</span>
+      <h3>Referral Engine</h3>
+      <p>The people who already send you people, ranked by referrals actually received. Two touches a day, same core, forever.</p>
+      <div class="meta"><em>DAILY</em><em>STREAK TRACKED</em><em>NEPQ OPENERS</em></div>
+      <div class="go">Open the engine →</div>
+    </a>
+
+    <a class="card" href="smd/">
+      <span class="tag">Production</span>
+      <h3>SMD Toolkit</h3>
+      <p>The full RFM SpeedZone 2026 packet, made fillable. 3&times;4 org chart, Smile &amp; Dial, scripts, and the licensing board.</p>
+      <div class="meta"><em>SEPT 30 DEADLINE</em><em>AUTOSAVE</em><em>PRINTABLE</em></div>
+      <div class="go">Open the toolkit →</div>
+    </a>
+
+  </div>
+
+  <div class="note"><b>Heads up.</b> These pages are public on the open web. Anything you type into them stays in your browser, but anything baked into the files themselves is readable by anyone with the link.</div>
+</main>
+
+<footer>
+  <hr>
+  Team Elevation &middot; Revolution Financial Management &middot; We exist to end mediocrity.<br>
+  SMD by September 30, 2026. 10 licenses. 2 MDs promoted. 100,000 base shop points.
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var target = new Date(2026, 8, 30, 23, 59, 59); // Sept 30, 2026
+  var days = Math.max(0, Math.ceil((target - new Date()) / 86400000));
+  document.getElementById("dleft").textContent = days;
+})();
+</script>
+
+</body>
+</html>
