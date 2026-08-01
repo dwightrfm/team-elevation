@@ -166,6 +166,27 @@ button.gh{background:transparent;border:1px solid var(--paper-line);color:#5B667
 .card span{font-size:12px;color:var(--sub);line-height:1.5}
 .card i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--red);display:block;margin-bottom:7px}
 
+/* ---------- attendance ---------- */
+.mtgrow{display:flex;gap:8px;flex-wrap:wrap}
+.mtgrow button{font:800 11px/1 var(--mono);letter-spacing:.07em;text-transform:uppercase;
+  padding:11px 15px;border-radius:5px;cursor:pointer;font-family:var(--mono);
+  border:1px solid var(--paper-line);background:#F2F5F8;color:#5B6672}
+.mtgrow button:hover{border-color:var(--red);color:var(--red-dk)}
+.mtgrow button.on{background:var(--red);border-color:var(--red);color:#fff}
+th.ctr,td.ctr{text-align:center}
+td.ctr input[type=checkbox]{width:17px;height:17px;accent-color:var(--red);cursor:pointer;margin:0}
+td.ctr input[type=checkbox]:disabled{opacity:.3;cursor:default}
+button.x{background:none;border:none;color:#B4BCC5;font:900 14px/1 var(--sans);cursor:pointer;padding:6px 8px}
+button.x:hover{color:var(--red)}
+td.empty{color:#8A929C;font-style:italic;padding:14px 8px;text-align:center}
+td.nm{padding:0}
+td.nm input{border:none;border-radius:0;padding:7px 8px;font-weight:600}
+tr.out td.nm input{color:#A2AAB4;text-decoration:line-through}
+.pill{display:inline-block;font:800 9px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;
+  padding:3px 6px;border-radius:3px;background:#F2F5F8;color:#6A737E;border:1px solid var(--paper-line)}
+.pill.good{background:#EAF7EF;color:#127A38;border-color:#BFE6CE}
+.pill.bad{background:var(--tint);color:var(--red-dk);border-color:#F3CBBE}
+
 .addrow{margin-top:11px}
 .hint{font-size:11.5px;color:#6A737E;margin-top:9px;font-style:italic}
 .srcnote{font-size:11px;color:var(--sub);margin-top:26px;padding-top:14px;border-top:1px solid var(--line)}
@@ -326,6 +347,68 @@ button.gh{background:transparent;border:1px solid var(--paper-line);color:#5B667
       <th style="width:52px">Top 25</th><th>Notes</th>
     </tr></thead><tbody id="tbfst"></tbody></table>
     <div class="addrow"><button class="gh" onclick="addFst()">+ Add row</button></div>
+  </div>
+</section>
+
+<!-- ================= ATTENDANCE ================= -->
+<section class="panel" id="p-att">
+  <h2 class="ttl">Meeting Attendance</h2>
+  <p class="lede">Who showed and who had their camera on. The eight regulars load in already marked present, so you only touch the exceptions. Every meeting and date is kept, so the rates at the bottom build themselves.</p>
+
+  <div class="paper">
+    <div class="mtgrow" id="attmtg"></div>
+
+    <div class="fieldgrid" style="max-width:520px;margin-top:16px">
+      <div><label class="f">Date</label><input type="date" id="attdate" onchange="attDate(this.value)"></div>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <button class="gh" onclick="attToday()">Most recent</button>
+        <button class="gh" onclick="attRegulars()">Restore regulars</button>
+      </div>
+    </div>
+
+    <h4 id="attwho">On the call</h4>
+    <table style="min-width:560px"><thead><tr>
+      <th style="width:34px"></th><th>Name</th>
+      <th style="width:84px" class="ctr">Present</th>
+      <th style="width:84px" class="ctr">Camera</th>
+      <th style="width:52px"></th>
+    </tr></thead><tbody id="atttbl"></tbody></table>
+
+    <div class="addrow" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input type="text" id="attnew" placeholder="Add somebody who showed up" style="max-width:290px"
+             onkeydown="if(event.key==='Enter'){event.preventDefault();attAdd();}">
+      <button class="go" onclick="attAdd()">Add</button>
+    </div>
+
+    <div class="tally">
+      <div class="tbox"><b id="at-present">0</b><span>On the call</span></div>
+      <div class="tbox"><b id="at-cam">0</b><span>Camera on</span></div>
+      <div class="tbox"><b id="at-nocam">0</b><span>Camera off</span></div>
+      <div class="tbox"><b id="at-absent">0</b><span>No-shows</span></div>
+      <div class="tbox"><b id="at-camrate">0%</b><span>On camera</span></div>
+    </div>
+    <p class="hint" id="atthint"></p>
+  </div>
+
+  <h3>Attendance rate by person</h3>
+  <div class="paper">
+    <table style="min-width:520px"><thead><tr>
+      <th>Name</th><th style="width:96px" class="ctr">Showed</th>
+      <th style="width:96px" class="ctr">Of</th>
+      <th style="width:104px" class="ctr">Rate</th>
+      <th style="width:104px" class="ctr">On camera</th>
+    </tr></thead><tbody id="attrate"></tbody></table>
+  </div>
+
+  <h3>Session log</h3>
+  <div class="paper">
+    <table style="min-width:560px"><thead><tr>
+      <th>Meeting</th><th style="width:110px">Date</th>
+      <th style="width:88px" class="ctr">Present</th>
+      <th style="width:88px" class="ctr">Camera</th>
+      <th style="width:56px"></th>
+    </tr></thead><tbody id="attlog"></tbody></table>
+    <p class="hint">Removing a session deletes its record and takes it back out of the rates above.</p>
   </div>
 </section>
 
@@ -539,6 +622,7 @@ const TABS = [
   ['dial','Smile &amp; Dial','☺'],
   ['505','50-5 Call Sheet','☎'],
   ['fst','Fast Start Tracker','▶'],
+  ['att','Attendance','☑'],
   ['bp','Business Plan','◆'],
   ['scripts','Scripts','❝'],
   ['ref','Referrals','↗'],
@@ -548,6 +632,7 @@ const CARDS = [
   ['dial','Smile &amp; Dial','480 clickable slots, 8am–7pm. Live dial/contact/appointment ratios.'],
   ['505','50-5 Call Sheet','25 calls plus 5 new prospects captured. One sheet per phone zone.'],
   ['fst','Fast Start Tracker','Every recruit from start date to licensed. Three field-training sits each.'],
+  ['att','Attendance','Monday leadership, Tuesday RISE, Saturday Nationwide. Who showed, who had camera on.'],
   ['bp','Business Plan','Nine sections, plus a live income-replacement calculator.'],
   ['scripts','Scripts','Warm market, 3 Good Qualities, and both referral call scripts — fillable.'],
   ['ref','Referrals','THE ASK three ways, field tips, COI list.'],
@@ -757,6 +842,128 @@ function refreshStats(){
   count505(); calcBp();
 }
 
+/* ============ attendance ============ */
+const REGULARS = ['Debbie','Trisha','David','Kristen','Bill','Shaneen','Cedric','James'];
+const MEETINGS = [
+  ['mon','Monday Leadership Call',1],
+  ['tue','Tuesday RISE Training',2],
+  ['sat','Saturday Nationwide Training',6],
+];
+S.att = S.att || {}; S.att.s = S.att.s || {};
+if(!S.att.m) S.att.m = 'mon';
+
+const attEsc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const mtg = id => MEETINGS.find(m=>m[0]===id) || MEETINGS[0];
+const ymd = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+
+/* Most recent occurrence of this meeting's weekday, today included. */
+function lastOn(wd){
+  const d = new Date();
+  d.setDate(d.getDate() - ((d.getDay() - wd + 7) % 7));
+  return ymd(d);
+}
+function attKey(){ return S.att.m + '|' + S.att.d; }
+function roster(){
+  const k = attKey();
+  // A date you have never opened starts with the regulars already marked present.
+  if(!S.att.s[k]) S.att.s[k] = REGULARS.map(n=>({n,p:true,c:false}));
+  return S.att.s[k];
+}
+function attSave(){ localStorage.setItem(KEY, JSON.stringify(S)); attRender(); }
+
+function attPick(id){ S.att.m=id; S.att.d=lastOn(mtg(id)[2]); attSave(); }
+function attDate(v){ if(v) S.att.d=v; attSave(); }
+function attToday(){ S.att.d=lastOn(mtg(S.att.m)[2]); attSave(); }
+function attRegulars(){
+  const r=roster(), have=r.map(x=>x.n.trim().toLowerCase());
+  REGULARS.forEach(n=>{ if(have.indexOf(n.toLowerCase())===-1) r.push({n,p:true,c:false}); });
+  attSave();
+}
+function attAdd(){
+  const i=document.getElementById('attnew'), n=i.value.trim();
+  if(!n) return;
+  roster().push({n,p:true,c:false});
+  i.value=''; attSave(); i.focus();
+}
+function attSet(i,f,v){
+  const p=roster()[i]; if(!p) return;
+  p[f]=v;
+  if(f==='p' && !v) p.c=false;   // camera is meaningless for a no-show
+  attSave();
+}
+function attName(i,v){ const p=roster()[i]; if(p){ p.n=v.trim()||p.n; attSave(); } }
+function attDel(i){ roster().splice(i,1); attSave(); }
+function attDelSession(k){
+  if(!confirm('Delete '+mtg(k.split('|')[0])[1]+' on '+k.split('|')[1]+'?')) return;
+  delete S.att.s[k]; attSave();
+}
+
+function attRender(){
+  document.getElementById('attmtg').innerHTML = MEETINGS.map(([id,label])=>
+    `<button data-m="${id}" class="${id===S.att.m?'on':''}" onclick="attPick('${id}')">${label}</button>`).join('');
+  document.getElementById('attdate').value = S.att.d || '';
+
+  const r = roster();
+  document.getElementById('attwho').textContent = mtg(S.att.m)[1] + ' — ' + (S.att.d||'no date');
+  document.getElementById('atttbl').innerHTML = r.map((p,i)=>
+    `<tr class="${p.p?'':'out'}">
+      <td class="rn">${i+1}</td>
+      <td class="nm"><input type="text" value="${attEsc(p.n)}" onchange="attName(${i},this.value)"></td>
+      <td class="ctr"><input type="checkbox" ${p.p?'checked':''} onchange="attSet(${i},'p',this.checked)"></td>
+      <td class="ctr"><input type="checkbox" ${p.c?'checked':''} ${p.p?'':'disabled'} onchange="attSet(${i},'c',this.checked)"></td>
+      <td class="ctr"><button class="x" onclick="attDel(${i})" title="Take off this session">✕</button></td>
+    </tr>`).join('') || '<tr><td colspan="5" class="empty">Nobody on the list. Add a name below, or restore the regulars.</td></tr>';
+
+  const present=r.filter(p=>p.p).length, cam=r.filter(p=>p.p&&p.c).length;
+  document.getElementById('at-present').textContent=present;
+  document.getElementById('at-cam').textContent=cam;
+  document.getElementById('at-nocam').textContent=present-cam;
+  document.getElementById('at-absent').textContent=r.length-present;
+  document.getElementById('at-camrate').textContent=(present?Math.round(cam/present*100):0)+'%';
+  document.getElementById('atthint').textContent =
+    present ? present+' on the call, '+cam+' with the camera on.' : 'Nobody marked present yet.';
+
+  attRates(); attLog();
+}
+
+function attRates(){
+  const keys=Object.keys(S.att.s);
+  const tally={};
+  keys.forEach(k=>S.att.s[k].forEach(p=>{
+    const n=p.n.trim(); if(!n) return;
+    const t=tally[n]||(tally[n]={of:0,got:0,cam:0});
+    t.of++; if(p.p){ t.got++; if(p.c) t.cam++; }
+  }));
+  const rows=Object.keys(tally).sort((a,b)=>{
+    const x=tally[a],y=tally[b];
+    return (y.got/y.of)-(x.got/x.of) || y.got-x.got || a.localeCompare(b);
+  });
+  document.getElementById('attrate').innerHTML = rows.map(n=>{
+    const t=tally[n], rate=Math.round(t.got/t.of*100);
+    const camRate=t.got?Math.round(t.cam/t.got*100):0;
+    const cls=rate>=80?'good':rate<50?'bad':'';
+    return `<tr><td class="nm" style="padding:7px 8px;font-weight:600">${attEsc(n)}</td>
+      <td class="ctr">${t.got}</td><td class="ctr">${t.of}</td>
+      <td class="ctr"><span class="pill ${cls}">${rate}%</span></td>
+      <td class="ctr">${camRate}%</td></tr>`;
+  }).join('') || '<tr><td colspan="5" class="empty">No sessions logged yet.</td></tr>';
+}
+
+function attLog(){
+  const keys=Object.keys(S.att.s).sort((a,b)=>b.split('|')[1].localeCompare(a.split('|')[1]));
+  document.getElementById('attlog').innerHTML = keys.map(k=>{
+    const r=S.att.s[k], present=r.filter(p=>p.p).length, cam=r.filter(p=>p.p&&p.c).length;
+    const cur=k===attKey();
+    return `<tr${cur?' style="background:#F2F5F8"':''}>
+      <td style="padding:7px 8px">${mtg(k.split('|')[0])[1]}${cur?' <span class="pill">open</span>':''}</td>
+      <td class="mono" style="padding:7px 8px">${k.split('|')[1]}</td>
+      <td class="ctr">${present} of ${r.length}</td>
+      <td class="ctr">${cam}</td>
+      <td class="ctr"><button class="x" onclick="attDelSession('${k}')" title="Delete this session">✕</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" class="empty">No sessions logged yet.</td></tr>';
+}
+
 /* ============ import / export ============ */
 function exportJSON(){
   const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
@@ -789,6 +996,8 @@ buildNav(); countdown(); buildOrg(); buildDial(); buildReasons();
 rowTable('tb505',25,[{k:'time'},{k:'name'},{k:'phone'},{k:'result'}],'c505');
 rowTable('tb505n',5,[{k:'time'},{k:'name'},{k:'phone'},{k:'notes'}],'n505');
 buildFst(); buildCoi();
+if(!S.att.d) S.att.d = lastOn(mtg(S.att.m)[2]);
+attRender();
 restore(); mirrorName(); refreshStats();
 document.addEventListener('input',e=>{ if(e.target.dataset && e.target.dataset.k) save(); });
 setInterval(countdown, 60000);
