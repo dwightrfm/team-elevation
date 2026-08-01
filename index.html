@@ -58,6 +58,10 @@ h2{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
 .card .meta{margin-top:16px;padding-top:13px;border-top:1px solid var(--navy-hi);display:flex;gap:16px;flex-wrap:wrap}
 .card .meta em{font-style:normal;font:700 11px/1 var(--mono);letter-spacing:.06em;color:var(--faint)}
 .card .go{margin-top:16px;font:800 12px/1 var(--sans);letter-spacing:.05em;color:var(--red)}
+.card.local{border-left-color:var(--faint);background:transparent}
+.card.local:hover{border-color:var(--muted);background:var(--navy)}
+.card.local .tag{color:var(--faint)}
+.card.local .go{color:var(--muted)}
 
 .note{margin-top:44px;background:var(--navy);border:1px solid var(--navy-hi);border-left:3px solid var(--gold);
   border-radius:10px;padding:16px 20px;font-size:13px;color:var(--muted);max-width:74ch}
@@ -100,6 +104,14 @@ footer hr{border:none;border-top:1px solid var(--navy-hi);margin:0 0 16px}
       <p>The full RFM SpeedZone 2026 packet, made fillable. 3&times;4 org chart, Smile &amp; Dial, scripts, and the licensing board.</p>
       <div class="meta"><em>SEPT 30 DEADLINE</em><em>AUTOSAVE</em><em>PRINTABLE</em></div>
       <div class="go">Open the toolkit →</div>
+    </a>
+
+    <a class="card local" href="http://localhost:8080/">
+      <span class="tag">Local only</span>
+      <h3>Command Center</h3>
+      <p>Scoreboard, pipeline, GX trackers, follow-up hub, and both tools above as tabs. Runs on your machine, not on the web.</p>
+      <div class="meta"><em>LOCALHOST:8080</em><em>NEEDS THE API SERVER</em></div>
+      <div class="go">Open the Command Center →</div>
     </a>
 
   </div>
