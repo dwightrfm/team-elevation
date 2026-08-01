@@ -18,6 +18,15 @@ the same setup as `dwightrfm/ccs-band`. Each tool persists to `localStorage` in 
 browser opens it, so data does not sync between devices. Use the Export button inside a
 tool to move it.
 
+## Command Center integration
+
+The Command Center (`dwightrfm/command-center`, runs locally on :8080) embeds both tools as
+tabs via `src/components/command-center/ToolFrame.tsx`, which iframes these Pages URLs. Same
+origin as the standalone site, so the `localStorage` is shared: log a touch in the Command
+Center tab and it shows up on the public page, and the other way round.
+
+The Command Center itself cannot go on Pages. It needs its bun API server on :3001.
+
 ## Updating a tool
 
 Edit the source file, copy it over, push:
