@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Hot States — Team Elevation</title>
+<style>
+  :root{
+    --ta-red:#E5421F;--ta-red-dk:#B8330F;--ta-navy:#1B2A4A;--ta-navy-dk:#10182B;
+    --ink:#111111;--muted:#5b6470;--line:#e4e7ec;--bg:#ffffff;--soft:#f6f7f9;
+    --ok:#1f9d57;--ok-bg:#E7F5EE;--warn:#9A6410;--warn-bg:#FDF2E0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);line-height:1.55;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1000px;margin:0 auto;padding:38px 22px 80px;}
+
+  header{border-bottom:3px solid var(--ta-red);padding-bottom:18px;margin-bottom:18px;}
+  .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ta-red);font-weight:700;}
+  h1{font-size:31px;color:var(--ta-navy);letter-spacing:-.02em;line-height:1.12;margin-top:8px;}
+  .sub{color:var(--muted);font-size:14.5px;margin-top:9px;max-width:70ch;}
+
+  h2{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--ta-navy);
+     font-weight:800;margin:38px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line);}
+
+  .stale{border-left:4px solid var(--warn);background:var(--warn-bg);padding:13px 17px;
+    border-radius:0 8px 8px 0;font-size:13.5px;line-height:1.6;margin-bottom:8px;}
+  .stale b{color:var(--ta-navy);}
+
+  /* checker */
+  .checker{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:22px 24px;}
+  .checker label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);font-weight:700;display:block;margin-bottom:9px;}
+  select{font:inherit;font-size:17px;font-weight:600;color:var(--ta-navy);
+    padding:12px 14px;border:2px solid var(--line);border-radius:8px;background:#fff;
+    width:100%;max-width:400px;cursor:pointer;}
+  select:focus{outline:none;border-color:var(--ta-red);}
+
+  .verdict{margin-top:18px;border-radius:10px;padding:20px 22px;border:2px solid var(--line);background:#fff;}
+  .verdict.hot{border-color:var(--ta-red);background:#FDF3F0;}
+  .verdict.clean{border-color:var(--ok);background:var(--ok-bg);}
+  .verdict .vh{font-size:21px;font-weight:800;color:var(--ta-navy);line-height:1.25;}
+  .verdict.hot .vh{color:var(--ta-red-dk);}
+  .verdict.clean .vh{color:#137743;}
+  .verdict .vd{font-size:14.5px;margin-top:9px;color:var(--ink);}
+  .who{margin-top:16px;padding-top:14px;border-top:1px solid rgba(0,0,0,.1);}
+  .who .wl{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-bottom:9px;}
+  .person{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:15px;}
+  .dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;}
+  .dot.y{background:var(--ok);} .dot.n{background:#c9cfd8;} .dot.a{background:var(--warn);}
+  .person .nm{font-weight:700;color:var(--ta-navy);min-width:132px;}
+  .person .st{color:var(--muted);font-size:13.5px;}
+
+  /* tiers */
+  .tiers{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .tier{border:1px solid var(--line);border-radius:11px;overflow:hidden;}
+  .tier .th{padding:14px 18px;background:var(--ta-navy);color:#fff;}
+  .tier.t1 .th{background:var(--ta-red);}
+  .tier .th .n{font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;font-weight:800;opacity:.85;}
+  .tier .th .t{font-size:16px;font-weight:800;margin-top:3px;line-height:1.3;}
+  .tier .tb{padding:14px 18px;}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{font-size:13.5px;font-weight:600;padding:6px 11px;border-radius:6px;
+    background:var(--soft);border:1px solid var(--line);color:var(--ink);}
+  .tier .note{font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.5;}
+
+  /* matrix */
+  .scroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px;}
+  th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:left;}
+  th{background:var(--ta-navy);color:#fff;font-size:10.5px;letter-spacing:.07em;
+     text-transform:uppercase;font-weight:700;}
+  th.c,td.c{text-align:center;}
+  tbody tr:nth-child(even){background:var(--soft);}
+  .y{color:var(--ok);font-weight:800;} .n{color:#c1c7d0;font-weight:700;} .a{color:var(--warn);font-weight:800;}
+  tr.l1 td:first-child{font-weight:800;color:var(--ta-red);}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;}
+  .pc{border:1px solid var(--line);border-radius:11px;padding:17px 19px;}
+  .pc h3{font-size:16.5px;color:var(--ta-navy);}
+  .pc .r{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-top:2px;}
+  .pc .lbl{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);
+    font-weight:700;margin-top:13px;margin-bottom:6px;}
+  .pc .hotcov{margin-top:13px;padding-top:11px;border-top:1px solid var(--line);font-size:13.5px;}
+  .pc .hotcov b{color:var(--ta-navy);}
+
+  .note{border-left:4px solid var(--ta-red);background:#FDF3F0;padding:14px 18px;
+    border-radius:0 8px 8px 0;font-size:13.5px;line-height:1.6;margin-top:14px;}
+  .note b{color:var(--ta-navy);}
+
+  footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:12px;line-height:1.65;}
+  footer a{color:var(--ta-navy);}
+
+  @media (max-width:720px){.tiers{grid-template-columns:1fr;} h1{font-size:25px;}}
+  @media print{@page{size:letter portrait;margin:.5in;} .wrap{padding:0;max-width:none;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p style="margin-bottom:14px"><a href="../" style="font:700 12px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#5b6470;text-decoration:none">&larr; Team Elevation tools</a></p>
+
+  <header>
+    <div class="eyebrow">Revolution Financial Management &middot; Team Elevation</div>
+    <h1>Hot States</h1>
+    <p class="sub">A hot state does not stop you writing business there. It governs whether the points <b>count</b> on the SMD run. If business is written in a hot state, the writing agent or whoever overrides it has to be licensed there, and in two states appointed as well.</p>
+  </header>
+
+  <div class="stale">
+    <b>This is a snapshot, not live.</b> Licensing data pulled from the mywfg Licenses &amp; Appointments report on <b>2026-07-13</b>, three weeks old. The canonical source is the <b>Team Licenses Google Sheet</b>, and when it disagrees with this page, the sheet wins. Re-pull before September 30.
+  </div>
+
+  <h2>Check a state</h2>
+  <div class="checker">
+    <label for="st">Where is the business being written?</label>
+    <select id="st">
+      <option value="">Select a state…</option>
+    </select>
+    <div id="out"></div>
+  </div>
+
+  <h2>The 15 hot states</h2>
+  <div class="tiers">
+    <div class="tier t1">
+      <div class="th"><div class="n">Tier 1 &middot; 2 states</div><div class="t">License AND carrier appointment</div></div>
+      <div class="tb">
+        <div class="chips"><span class="chip">Florida</span><span class="chip">Virginia</span></div>
+        <p class="note">Both are required. A license alone does not earn the override here.</p>
+      </div>
+    </div>
+    <div class="tier">
+      <div class="th"><div class="n">Tier 2 &middot; 13 jurisdictions</div><div class="t">License only</div></div>
+      <div class="tb">
+        <div class="chips">
+          <span class="chip">Georgia</span><span class="chip">Kentucky</span><span class="chip">Louisiana</span>
+          <span class="chip">Massachusetts</span><span class="chip">Mississippi</span><span class="chip">Montana</span>
+          <span class="chip">New Mexico</span><span class="chip">Pennsylvania</span><span class="chip">Puerto Rico</span>
+          <span class="chip">South Carolina</span><span class="chip">South Dakota</span><span class="chip">West Virginia</span>
+          <span class="chip">Wisconsin</span>
+        </div>
+        <p class="note">Licensed in the state is enough. No carrier appointment needed for the override to count.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>Who covers what</h2>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Hot state</th><th class="c">Kander</th><th class="c">David Bradley</th><th class="c">Debbie Langston</th><th>Note</th></tr></thead>
+      <tbody id="mx"></tbody>
+    </table>
+  </div>
+
+  <div class="note">
+    <b>13 of the 15 hot states have nobody on them.</b> Only Florida, Georgia, Kentucky and South Carolina are covered, and Florida runs entirely through Debbie. If a case lands in any of the other eleven, the points do not count unless it is routed through someone licensed there.
+  </div>
+
+  <h2>Team licensing on file</h2>
+  <div class="cards" id="cards"></div>
+
+  <footer>
+    Source: <code>baseshop-coordinator/production/production-CLAUDE.md</code>, built from the mywfg.com Licenses &amp; Appointments reports exported 2026-07-13 (<code>kander_state_licensing_2026-07-13.csv</code>, <code>david_bradley_state_licensing_2026-07-13.csv</code>, <code>debbie_langston_state_licensing_2026-07-13.csv</code>).<br>
+    Canonical, human-editable: the <b>Team Licenses</b> Google Sheet (link kept out of this page on purpose). When it disagrees with this page, the sheet wins.<br>
+    "Ambiguous" means a carrier appointment is on file with no explicit License line item on the report. Verify before counting it. Built 2026-08-07.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  var TIER1 = ['Florida','Virginia'];
+  var TIER2 = ['Georgia','Kentucky','Louisiana','Massachusetts','Mississippi','Montana',
+               'New Mexico','Pennsylvania','Puerto Rico','South Carolina','South Dakota',
+               'West Virginia','Wisconsin'];
+
+  // y = explicit License line item, a = appointment on file but no License row, n = nothing
+  var TEAM = {
+    'Kander McInnis': {
+      role: 'Team owner',
+      lic: ['Arizona','California','Georgia','Illinois','Indiana','Michigan','North Carolina','Ohio','South Carolina','Tennessee','Texas'],
+      amb: {'Colorado':'Appointment on file, no License row',
+            'Kentucky':'WFG Corporate License only, not an individual producer license',
+            'Missouri':'Appointment on file, no License row',
+            'Nevada':'Appointment on file, no License row',
+            'Oregon':'Appointment on file, no License row',
+            'Virginia':'Appointed Transamerica + WRL/TPLIC, Health and Life since 1/10/2023, no License row',
+            'Wisconsin':'Appointed since 2020, no License row'}
+    },
+    'David Bradley': {
+      role: 'Associate',
+      lic: ['Alabama','Arizona','California','Illinois','Minnesota','North Carolina','New Jersey','South Carolina','Texas','Utah','Vermont','Washington'],
+      amb: {},
+      notes: {'Minnesota':'Life only'}
+    },
+    'Debbie Langston': {
+      role: 'Senior Associate',
+      lic: ['Arizona','Florida','Kentucky','North Carolina','South Carolina','Texas'],
+      amb: {},
+      notes: {'Florida':'Also Variable Annuity and Variable Life'}
+    }
+  };
+
+  var STATES = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware',
+    'District of Columbia','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas',
+    'Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi',
+    'Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York',
+    'North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Puerto Rico',
+    'Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia',
+    'Washington','West Virginia','Wisconsin','Wyoming'];
+
+  var sel = document.getElementById('st');
+  STATES.forEach(function(s){
+    var o = document.createElement('option'); o.value = s; o.textContent = s; sel.appendChild(o);
+  });
+
+  function status(person, state){
+    var p = TEAM[person];
+    if (p.lic.indexOf(state) !== -1) return {k:'y', t:'Licensed' + (p.notes && p.notes[state] ? ' (' + p.notes[state] + ')' : '')};
+    if (p.amb[state]) return {k:'a', t:'Ambiguous — ' + p.amb[state]};
+    return {k:'n', t:'Not on file'};
+  }
+
+  // matrix
+  var mx = document.getElementById('mx');
+  TIER1.concat(TIER2).forEach(function(st){
+    var t1 = TIER1.indexOf(st) !== -1;
+    var tr = document.createElement('tr');
+    if (t1) tr.className = 'l1';
+    var cells = ['Kander McInnis','David Bradley','Debbie Langston'].map(function(p){
+      var s = status(p, st);
+      var m = {y:'YES', a:'?', n:'no'}[s.k];
+      return '<td class="c ' + s.k + '">' + m + '</td>';
+    }).join('');
+    var covered = ['Kander McInnis','David Bradley','Debbie Langston'].filter(function(p){ return status(p,st).k === 'y'; });
+    var note;
+    if (st === 'Florida') note = 'Tier 1. Debbie has the full License plus Appointment, the only one who does.';
+    else if (st === 'Virginia') note = 'Tier 1. Kander is appointed but has no License row. Confirm before counting.';
+    else if (st === 'Kentucky') note = 'Debbie licensed. Kander has a Corporate License only, not an individual one.';
+    else if (st === 'Wisconsin') note = 'Kander appointed since 2020, no License row. Verify.';
+    else if (covered.length) note = covered.join(', ') + '.';
+    else note = 'Nobody on file. Points would not count.';
+    tr.innerHTML = '<td>' + st + (t1 ? ' <span style="font-size:11px;font-weight:700">(L+A)</span>' : '') + '</td>' + cells + '<td style="font-size:13px;color:var(--muted)">' + note + '</td>';
+    mx.appendChild(tr);
+  });
+
+  // person cards
+  var cards = document.getElementById('cards');
+  Object.keys(TEAM).forEach(function(p){
+    var d = TEAM[p];
+    var hot = TIER1.concat(TIER2).filter(function(s){ return status(p,s).k === 'y'; });
+    var ambHot = TIER1.concat(TIER2).filter(function(s){ return status(p,s).k === 'a'; });
+    var el = document.createElement('div');
+    el.className = 'pc';
+    el.innerHTML = '<h3>' + p + '</h3><div class="r">' + d.role + '</div>' +
+      '<div class="lbl">Licensed (' + d.lic.length + ')</div><div class="chips">' +
+        d.lic.map(function(s){ return '<span class="chip">' + s + (d.notes && d.notes[s] ? ' *' : '') + '</span>'; }).join('') + '</div>' +
+      (Object.keys(d.amb).length ? '<div class="lbl">Appointment only, no license row (' + Object.keys(d.amb).length + ')</div><div class="chips">' +
+        Object.keys(d.amb).map(function(s){ return '<span class="chip" style="border-color:#E0C48A;background:#FDF2E0">' + s + '</span>'; }).join('') + '</div>' : '') +
+      '<div class="hotcov"><b>Hot state coverage:</b> ' +
+        (hot.length ? hot.join(', ') : 'none') +
+        (ambHot.length ? '. Unverified: ' + ambHot.join(', ') + '.' : '.') + '</div>';
+    cards.appendChild(el);
+  });
+
+  // checker
+  var out = document.getElementById('out');
+  sel.addEventListener('change', function(){
+    var st = sel.value;
+    if (!st){ out.innerHTML = ''; return; }
+    var t1 = TIER1.indexOf(st) !== -1, t2 = TIER2.indexOf(st) !== -1;
+    var isHot = t1 || t2;
+    var rows = ['Kander McInnis','David Bradley','Debbie Langston'].map(function(p){
+      var s = status(p, st);
+      return '<div class="person"><span class="dot ' + s.k + '"></span><span class="nm">' + p + '</span><span class="st">' + s.t + '</span></div>';
+    }).join('');
+    var licensed = ['Kander McInnis','David Bradley','Debbie Langston'].filter(function(p){ return status(p,st).k === 'y'; });
+
+    var head, body;
+    if (!isHot){
+      head = st + ' is NOT a hot state.';
+      body = 'Business written here counts on the SMD run with no license-plus-override gymnastics. You still need to be licensed in ' + st + ' to write it personally, but that is an ordinary licensing question, not a points question.';
+    } else if (t1){
+      head = st + ' is a HOT STATE. License AND carrier appointment required.';
+      body = 'A license on its own does not earn the override here. Whoever takes the override needs both.';
+    } else {
+      head = st + ' is a HOT STATE. License required.';
+      body = 'Whoever takes the override must be licensed in ' + st + '. No carrier appointment needed.';
+    }
+    if (isHot && !licensed.length){
+      body += ' <b style="color:var(--ta-red-dk)">Nobody on file is licensed here, so these points would not count.</b>';
+    } else if (isHot && licensed.length){
+      body += ' <b>Route it through ' + licensed.join(' or ') + '.</b>';
+    } else if (!isHot && licensed.length){
+      body += ' <b>' + licensed.join(' and ') + ' already licensed here.</b>';
+    }
+
+    out.innerHTML = '<div class="verdict ' + (isHot ? 'hot' : 'clean') + '">' +
+      '<div class="vh">' + head + '</div><div class="vd">' + body + '</div>' +
+      '<div class="who"><div class="wl">Who is licensed in ' + st + '</div>' + rows + '</div></div>';
+  });
+})();
+</script>
+</body>
+</html>
